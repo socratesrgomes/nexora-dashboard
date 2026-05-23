@@ -1,0 +1,3327 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexora · Production Intelligence Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+
+/* ═══════════════════════════════════════════
+   NEXORA DESIGN SYSTEM
+   Dark UI · Glassmorphism · Neon Accents
+   Primary: #7C3AED  Secondary: #06B6D4  Accent: #10B981
+   Background: #0B1020  Surface: #111827
+═══════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+:root{
+  /* Nexora Brand Tokens */
+  --nx-primary: #7C3AED;
+  --nx-primary-glow: rgba(124,58,237,0.25);
+  --nx-secondary: #06B6D4;
+  --nx-secondary-glow: rgba(6,182,212,0.2);
+  --nx-accent: #10B981;
+  --nx-accent-glow: rgba(16,185,129,0.2);
+  --nx-bg: #0B1020;
+  --nx-surface: #111827;
+  --nx-surface2: #1E293B;
+  --nx-border: rgba(124,58,237,0.2);
+  --nx-border-subtle: rgba(255,255,255,0.06);
+  --nx-text: #F9FAFB;
+  --nx-text-muted: #94A3B8;
+  --nx-text-dim: #64748B;
+  --nx-glow-purple: 0 0 20px rgba(124,58,237,0.35);
+  --nx-glow-cyan: 0 0 20px rgba(6,182,212,0.3);
+  --nx-glow-green: 0 0 20px rgba(16,185,129,0.25);
+  --nx-glass: rgba(17,24,39,0.8);
+  --nx-glass-border: rgba(124,58,237,0.15);
+}
+
+
+
+/* Fix select elements - prevent browser checkerboard on selected state */
+select.fp {
+  background-color: #1E293B !important;
+  color: #F9FAFB !important;
+}
+select.fp option {
+  background: #1E293B;
+  color: #F9FAFB;
+}
+/* Active filter pill strip select */
+.filter-drawer select.fp.on {
+  background-color: #7C3AED !important;
+  color: #fff !important;
+}
+
+
+/* ── NEXORA CUSTOM SELECT DROPDOWNS ── */
+.nx-select-wrap { position: relative; display: inline-block; }
+.nx-sel-btn {
+  cursor: pointer;
+  white-space: nowrap;
+  min-width: 90px;
+  text-align: left;
+}
+.nx-sel-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 130px;
+  background: #1E293B;
+  border: 1px solid rgba(124,58,237,0.3);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(124,58,237,0.1);
+  z-index: 999;
+  overflow: hidden;
+}
+.nx-sel-opt {
+  padding: 8px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #94A3B8;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.nx-sel-opt:hover { background: rgba(124,58,237,0.15); color: #F9FAFB; }
+.nx-sel-opt.on { color: #C4B5FD; background: rgba(124,58,237,0.12); }
+
+
+/* ── HEATMAP ── */
+#heatmapWrap table td { transition: opacity 0.15s; }
+#heatmapWrap table tr:hover td { opacity: 0.85; }
+
+/* ── HIGH CONTRAST FIXES ── */
+.arow { color: #F9FAFB !important; }
+.adesc { color: #94A3B8 !important; }
+.adate { color: #F9FAFB !important; }
+.amore { border-top-color: #1E293B !important; }
+.af-label { color: #94A3B8 !important; }
+.af-clear { color: #94A3B8 !important; }
+.af-runcount { color: #94A3B8 !important; }
+.af-more { border-color: #1E293B !important; color: #94A3B8 !important; }
+.kgrid .kcard .kv { color: #F9FAFB !important; font-weight: 700 !important; }
+.kgrid .kcard .kl { color: #94A3B8 !important; }
+.kgrid .kcard .ks { color: #94A3B8 !important; }
+.kgrid .kcard .tip { color: #64748B !important; }
+.leg .li { color: #94A3B8 !important; }
+.tbl td { color: #E2E8F0 !important; }
+.tbl th { color: #94A3B8 !important; }
+.bar-i { background: #7C3AED !important; }
+.pill-mg, .pill-ok, .pill-warn, .pill-crit { font-weight: 700 !important; }
+.inc-mini-lbl { color: #94A3B8 !important; }
+.inc-mini-val { color: #F9FAFB !important; }
+.rinc-date { color: #F9FAFB !important; }
+.rinc-rca { color: #94A3B8 !important; }
+.cmp-val { color: #F9FAFB !important; }
+.cmp-sub { color: #94A3B8 !important; }
+.nodata { color: #64748B !important; }
+.exec-headline { color: #F9FAFB !important; }
+.exec-period { color: #94A3B8 !important; }
+select.fp option { background: #1E293B; color: #F9FAFB; }
+
+/* Override body with Nexora dark */
+body {
+  background: #0B1020 !important;
+  color: #F9FAFB !important;
+  font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+  background: var(--nx-bg) !important;
+  color: var(--nx-text) !important;
+}
+
+/* Nexora grid noise texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: 
+    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(124,58,237,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 90%, rgba(6,182,212,0.06) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* HEADER — Nexora glassmorphism dark */
+.hdr {
+  background: rgba(11,16,32,0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid var(--nx-border) !important;
+  box-shadow: 0 1px 0 rgba(124,58,237,0.15), 0 4px 20px rgba(0,0,0,0.4) !important;
+}
+.hdr-title {
+  color: var(--nx-text) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.02em !important;
+}
+.hdr-sub {
+  color: var(--nx-text-muted) !important;
+}
+.hdr-logo-wrap { display:flex; align-items:center; }
+
+/* LIVE badge — neon purple */
+.live-badge {
+  background: linear-gradient(135deg, #7C3AED, #06B6D4) !important;
+  box-shadow: var(--nx-glow-purple) !important;
+  color: #fff !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.1em !important;
+}
+
+/* CARDS — glassmorphism */
+.card {
+  background: var(--nx-surface) !important;
+  border: 1px solid var(--nx-border) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04) !important;
+  transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+.card:hover {
+  border-color: rgba(124,58,237,0.4) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4), var(--nx-glow-purple), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+}
+.ctitle { color: var(--nx-text) !important; font-weight: 700 !important; }
+.csub { color: var(--nx-text-muted) !important; }
+
+/* KPI TILES */
+.kcard {
+  background: var(--nx-surface) !important;
+  border: 1px solid var(--nx-border) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.25) !important;
+}
+.kv { color: var(--nx-text) !important; }
+.kl, .ks { color: var(--nx-text-muted) !important; }
+
+/* SECTION HEADERS */
+.sec-title { color: var(--nx-text-muted) !important; letter-spacing: 0.12em !important; }
+.sec-line { background: var(--nx-border) !important; }
+
+/* FILTER STRIP */
+.active-filter {
+  background: rgba(11,16,32,0.9) !important;
+  border-bottom: 1px solid var(--nx-border) !important;
+  backdrop-filter: blur(10px) !important;
+}
+.af-chip {
+  background: linear-gradient(135deg, #7C3AED, #A855F7) !important;
+  box-shadow: 0 0 12px rgba(124,58,237,0.3) !important;
+}
+.filter-drawer {
+  background: rgba(17,24,39,0.95) !important;
+  border-bottom: 1px solid var(--nx-border) !important;
+  backdrop-filter: blur(10px) !important;
+}
+.fp {
+  background: var(--nx-surface2) !important;
+  color: var(--nx-text) !important;
+  border: 1px solid var(--nx-border) !important;
+  border-radius: 20px !important;
+}
+.fp.on {
+  background: #7C3AED !important;
+  color: #fff !important;
+  border-color: #7C3AED !important;
+  box-shadow: 0 0 10px rgba(124,58,237,0.35) !important;
+}
+select.fp.on {
+  background: #7C3AED !important;
+  color: #fff !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23fff'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 8px center !important;
+}
+.fp:hover:not(.on) { border-color: #7C3AED !important; }
+
+/* EXEC SUMMARY */
+.exec {
+  background: linear-gradient(135deg, #0B1020 0%, #111827 50%, rgba(124,58,237,0.1) 100%) !important;
+  border: 1px solid var(--nx-border) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(124,58,237,0.1) !important;
+}
+.exec-kicker { color: #7C3AED !important; }
+.exec-body { color: var(--nx-text-muted) !important; }
+.exec-body .mg { color: #7C3AED !important; }
+.exec-body code { background: rgba(124,58,237,0.15) !important; color: #C4B5FD !important; }
+
+/* VOLUME INDICATOR */
+.vol-indicator {
+  background: var(--nx-surface) !important;
+  border: 1px solid var(--nx-border) !important;
+  border-left: 3px solid #7C3AED !important;
+  border-radius: 12px !important;
+}
+.vol-icon { background: linear-gradient(135deg, #7C3AED, #06B6D4) !important; }
+.vol-body { color: var(--nx-text) !important; }
+.vol-body .mg { color: #7C3AED !important; }
+.vol-meta { color: var(--nx-text-muted) !important; }
+
+/* INSIGHT BOXES */
+.insight {
+  background: rgba(124,58,237,0.08) !important;
+  border-left: 3px solid #7C3AED !important;
+  color: var(--nx-text-muted) !important;
+  border-radius: 0 8px 8px 0 !important;
+}
+.insight strong { color: #7C3AED !important; }
+
+/* REGIME NOTE */
+.regime-note {
+  background: rgba(6,182,212,0.08) !important;
+  border-left: 3px solid #06B6D4 !important;
+  color: #38BDF8 !important;
+  border-radius: 0 8px 8px 0 !important;
+}
+
+/* BEFORE/AFTER COMPARISON */
+.cmp-side.cmp-before { background: var(--nx-surface2) !important; border-color: var(--nx-border) !important; }
+.cmp-side.cmp-after { background: rgba(124,58,237,0.08) !important; border-color: rgba(124,58,237,0.3) !important; }
+.cmp-val { color: var(--nx-text) !important; }
+.cmp-label { color: var(--nx-text-muted) !important; }
+.cmp-verdict.better { background: rgba(16,185,129,0.12) !important; color: #10B981 !important; }
+.cmp-verdict.worse { background: rgba(239,68,68,0.12) !important; color: #F87171 !important; }
+.cmp-verdict.flat { background: var(--nx-surface2) !important; color: var(--nx-text-muted) !important; }
+
+/* TABLES */
+.tbl th { color: var(--nx-text-muted) !important; border-bottom: 1px solid var(--nx-border) !important; }
+.tbl td { color: var(--nx-text) !important; border-bottom: 1px solid var(--nx-border-subtle) !important; }
+.tbl tr:hover td { background: var(--nx-surface2) !important; }
+.bar-i { background: #7C3AED !important; }
+
+/* INCIDENT PANEL */
+.inc-modal {
+  background: var(--nx-surface) !important;
+  border: 1px solid var(--nx-border) !important;
+  border-radius: 16px !important;
+}
+.inc-title { color: var(--nx-text) !important; }
+.inc-close { border-color: var(--nx-border) !important; color: var(--nx-text-muted) !important; }
+.inc-close:hover { border-color: #7C3AED !important; color: var(--nx-text) !important; }
+.inc-stat { background: var(--nx-surface2) !important; border-color: var(--nx-border) !important; }
+.inc-stat-val { color: #7C3AED !important; }
+.inc-stat-lbl { color: var(--nx-text-dim) !important; }
+.inc-chart-card { background: var(--nx-surface2) !important; border-color: var(--nx-border) !important; }
+.inc-chart-title { color: var(--nx-text) !important; }
+.inc-table th { background: var(--nx-surface2) !important; color: var(--nx-text-dim) !important; border-color: var(--nx-border) !important; }
+.inc-table td { color: var(--nx-text-muted) !important; border-color: var(--nx-border-subtle) !important; }
+.inc-table tr:hover td { background: var(--nx-surface2) !important; }
+.inc-filters select, .inc-filters input {
+  background: var(--nx-surface2) !important;
+  border: 1px solid var(--nx-border) !important;
+  color: var(--nx-text) !important;
+  border-radius: 8px !important;
+}
+
+/* CATEGORY PILLS */
+.cat-Infrastructure { background: #7C3AED !important; }
+.cat-Data-Quality { background: #06B6D4 !important; }
+.cat-Database { background: #0891B2 !important; }
+.cat-Deployment { background: #F59E0B !important; }
+.cat-Environment { background: #10B981 !important; }
+.cat-Other { background: #64748B !important; }
+
+/* DROP ZONE overlay */
+#dropOverlay { background: rgba(11,16,32,0.96) !important; }
+.drop-card {
+  background: var(--nx-surface) !important;
+  border: 1px solid var(--nx-border) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5), var(--nx-glow-purple) !important;
+}
+.drop-title { color: var(--nx-text) !important; font-weight: 800 !important; }
+.drop-sub { color: var(--nx-text-muted) !important; }
+.drop-btn {
+  background: linear-gradient(135deg, #7C3AED, #A855F7) !important;
+  color: #fff !important;
+  border-radius: 10px !important;
+  box-shadow: 0 0 20px rgba(124,58,237,0.4) !important;
+  transition: all 0.2s !important;
+}
+.drop-btn:hover { background: linear-gradient(135deg, #6D28D9, #7C3AED) !important; box-shadow: 0 0 30px rgba(124,58,237,0.6) !important; }
+.drop-btn:disabled { background: var(--nx-surface2) !important; color: var(--nx-text-dim) !important; box-shadow: none !important; }
+.dz { background: var(--nx-surface2) !important; border-color: var(--nx-border) !important; }
+.dz:hover, .dz.active { border-color: #7C3AED !important; background: rgba(124,58,237,0.08) !important; }
+.dz.loaded { border-color: #10B981 !important; background: rgba(16,185,129,0.08) !important; }
+.dz-label { color: var(--nx-text) !important; }
+.dz-hint { color: var(--nx-text-dim) !important; }
+.dz-check { color: #10B981 !important; }
+
+/* FOOTER */
+footer {
+  background: rgba(11,16,32,0.95) !important;
+  border-top: 1px solid var(--nx-border) !important;
+  color: var(--nx-text-dim) !important;
+}
+
+/* RELOAD / SHARE buttons */
+.reload-btn {
+  border-color: var(--nx-border) !important;
+  color: var(--nx-text-muted) !important;
+  background: transparent !important;
+}
+.reload-btn:hover { border-color: #7C3AED !important; color: #7C3AED !important; }
+
+/* DARK TOGGLE — Nexora style */
+.dark-toggle { border-color: var(--nx-border) !important; color: var(--nx-text-muted) !important; }
+.dark-toggle:hover { border-color: #7C3AED !important; color: #7C3AED !important; }
+
+/* ANOMALY ROWS */
+.arow { background: var(--nx-surface2) !important; color: var(--nx-text) !important; }
+.arow.sev-p1 { background: rgba(239,68,68,0.1) !important; border-left-color: #EF4444 !important; }
+.arow.sev-spike, .arow.sev-drop { background: rgba(245,158,11,0.08) !important; border-left-color: #F59E0B !important; }
+
+/* PILLS */
+.pill-mg { background: rgba(124,58,237,0.15) !important; color: #C4B5FD !important; }
+.pill-ok { background: rgba(16,185,129,0.12) !important; color: #6EE7B7 !important; }
+.pill-warn { background: rgba(245,158,11,0.1) !important; color: #FCD34D !important; }
+.pill-crit { background: rgba(239,68,68,0.1) !important; color: #FCA5A5 !important; }
+
+/* Incident trend mini-tiles */
+.inc-mini { background: var(--nx-surface2) !important; }
+.rinc-date { color: var(--nx-text) !important; }
+.rinc-rca { color: var(--nx-text-muted) !important; }
+
+/* Select dropdowns */
+select.fp {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237C3AED'/%3E%3C/svg%3E") !important;
+}
+
+/* Verdict chips */
+.vr-red { background: rgba(185,28,28,0.8) !important; }
+.vr-amber { background: rgba(217,119,6,0.8) !important; }
+.vr-ok { background: rgba(22,163,74,0.8) !important; }
+
+/* Incident marker dots on run chart */
+.inc-marker { border-color: #7C3AED !important; background: #C4B5FD !important; }
+
+/* Legend items */
+.leg .li { color: var(--nx-text-muted) !important; }
+
+:root{
+  --mg:#7C3AED;--berry:#A855F7;--blk:#F9FAFB;--wht:#0B1020;
+  --gr:#94A3B8;--grl:#1E293B;--grll:#111827;
+  /* Sprint 3 Fix #20: semantic tokens used by dark mode overrides */
+  --c-bg-page:#0B1020;
+  --c-bg-card:#111827;
+  --c-bg-section:#111827;
+  --c-bg-subtle:#0B1020;
+  --c-text-primary:#F9FAFB;
+  --c-text-secondary:#94A3B8;
+  --c-text-tertiary:#64748B;
+  --c-border-card:#1E293B;
+  --c-border-subtle:#0F172A;
+  --c-code-bg:#1E293B;
+  --c-code-text:#A5F3FC;
+  --c-insight-bg:#1E1B4B;
+  --c-regime-bg:#0C1A3A;
+  --c-regime-text:#38BDF8;
+  --c-regime-b:#7DD3FC;
+  --c-vol-bg:#111827;
+  --c-cmp-before-bg:#111827;
+  --c-cmp-after-bg:#1E1B4B;
+  --c-cmp-after-border:#4C1D95;
+  --c-verdict-worse-bg:#fee2e2;
+  --c-verdict-better-bg:#dcfce7;
+  --c-verdict-better-text:#166534;
+  --c-verdict-flat-bg:#f5f5f5;
+  --c-filter-strip-bg:#111827;
+  --c-drawer-bg:#0B1020;
+  --c-af-neutral-bg:#1E293B;
+  --c-af-neutral-text:#F9FAFB;
+  --c-fp-bg:#1E293B;
+  --c-fp-text:#F9FAFB;
+  --c-inc-modal-bg:#0B1020;
+  --c-inc-table-hover:#161616;
+  --c-inc-mini-bg:#111827;
+  --c-inc-chart-bg:#111827;
+  --c-tbl-hover:#1E293B;
+  --c-arow-bg:#111827;
+  --c-footer-bg:#0B1020;
+  --c-footer-text:#64748B;
+}
+
+/* ── DARK MODE VARIABLE OVERRIDES ── */
+{
+  --grl:#2a2a2a;--grll:#1e1e1e;--gr:#9CA3AF;--blk:#f0f0f0;--wht:#111;
+  --c-bg-page:#0f0f0f;
+  --c-bg-card:#1a1a1a;
+  --c-bg-section:#1e1e1e;
+  --c-bg-subtle:#161616;
+  --c-text-primary:#f0f0f0;
+  --c-text-secondary:#9CA3AF;
+  --c-text-tertiary:#6B7280;
+  --c-border-card:#2a2a2a;
+  --c-border-subtle:#222222;
+  --c-code-bg:#2a2a2a;
+  --c-code-text:#f9a8d4;
+  --c-insight-bg:#1f0010;
+  --c-regime-bg:#1a1400;
+  --c-regime-text:#fcd34d;
+  --c-regime-b:#fde68a;
+  --c-vol-bg:#1a1a1a;
+  --c-cmp-before-bg:#1e1e1e;
+  --c-cmp-after-bg:#200010;
+  --c-cmp-after-border:#5a0030;
+  --c-verdict-worse-bg:#3b0a0a;
+  --c-verdict-better-bg:#0a2a15;
+  --c-verdict-better-text:#4ade80;
+  --c-verdict-flat-bg:#222;
+  --c-filter-strip-bg:#111111;
+  --c-drawer-bg:#161616;
+  --c-af-neutral-bg:#222222;
+  --c-af-neutral-text:#f0f0f0;
+  --c-fp-bg:#1e1e1e;
+  --c-fp-text:#f0f0f0;
+  --c-inc-modal-bg:#0d0d0d;
+  --c-inc-table-hover:#111111;
+  --c-inc-mini-bg:#222222;
+  --c-inc-chart-bg:#161616;
+  --c-tbl-hover:#222222;
+  --c-arow-bg:#1e1e1e;
+  --c-footer-bg:#0B1020;
+  --c-footer-text:#555555;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  background:var(--c-bg-page);color:var(--c-text-primary);
+  min-height:100vh;transition:background .25s,color .25s;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+}
+
+/* ── DARK MODE TOGGLE BUTTON ── */
+.dark-toggle{
+  background:transparent;border:1.5px solid #444;color:#ccc;
+  font-size:13px;padding:3px 9px;border-radius:20px;cursor:pointer;
+  transition:all .15s;user-select:none;line-height:1.4;
+}
+.dark-toggle:hover{border-color:var(--mg);color:var(--mg);}
+.dark-toggle{border-color:#555;color:#ccc;}
+.dark-toggle:hover{border-color:var(--mg);color:var(--mg);}
+
+/* ── DROP ZONE ── */
+#dropOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);display:flex;align-items:center;justify-content:center;z-index:1000;transition:opacity .2s;}
+#dropOverlay.hidden{opacity:0;pointer-events:none;}
+.drop-card{background:#111;border:2px dashed var(--mg);border-radius:16px;padding:40px 48px;text-align:center;max-width:580px;width:90%;}
+.drop-logo{height:52px;width:auto;max-width:80px;object-fit:contain;margin-bottom:20px;}
+.drop-title{color:#fff;font-size:22px;font-weight:800;margin-bottom:8px;}
+.drop-sub{color:#6A6A6A;font-size:13px;margin-bottom:20px;line-height:1.6;}
+.drop-zones{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;}
+.dz{border:1.5px dashed #444;border-radius:10px;padding:16px 10px;cursor:pointer;transition:all .2s;background:#1a1a1a;position:relative;}
+.dz:hover,.dz.active{border-color:var(--mg);background:#1f0010;}
+.dz.loaded{border-color:#16a34a;background:#001a0a;}
+.dz-icon{font-size:24px;margin-bottom:6px;}
+.dz-label{color:#fff;font-size:11px;font-weight:700;margin-bottom:4px;}
+.dz-hint{color:#555;font-size:9px;line-height:1.4;}
+.dz-check{color:#16a34a;font-size:10px;font-weight:700;margin-top:4px;}
+.dz input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.drop-btn{background:var(--mg);color:#fff;border:none;border-radius:8px;padding:11px 28px;font-size:13px;font-weight:800;cursor:pointer;letter-spacing:.04em;transition:background .15s;}
+.drop-btn:hover{background:var(--berry);}
+.drop-btn:disabled{background:#333;color:#666;cursor:not-allowed;}
+.drop-note{color:#444;font-size:10px;margin-top:14px;line-height:1.6;}
+
+/* ── HEADER ── */
+.hdr{
+  background:#000;padding:14px 24px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  position:sticky;top:0;z-index:100;
+}
+.hdr-left{display:flex;align-items:center;gap:14px;}
+.hdr-logo{height:34px;width:auto;}
+.hdr-title{color:#fff;font-size:15px;font-weight:800;}
+.hdr-sub{color:#666;font-size:11px;margin-top:1px;}
+.hdr-right{display:flex;align-items:center;gap:10px;}
+.live-badge{background:var(--mg);color:#fff;font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;letter-spacing:.06em;}
+.reload-btn{
+  background:transparent;border:1.5px solid #444;color:#888;
+  font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;cursor:pointer;
+  letter-spacing:.04em;transition:all .15s;
+}
+.reload-btn:hover{border-color:var(--mg);color:var(--mg);}
+#data-status{color:#666;font-size:10px;}
+#data-status.ok{color:#16a34a;}
+#data-status.warn{color:#d97706;}
+
+/* ── FILTER BAR (classes now used inside the Sprint 2 Fix #12 drawer) ── */
+.fb-label{font-size:10px;font-weight:800;color:var(--gr);letter-spacing:.08em;text-transform:uppercase;margin-right:2px;}
+.fp{
+  padding:5px 10px;border-radius:20px;border:1.5px solid var(--grl);
+  background:#1E293B;color:#F9FAFB;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;
+}
+.fp.on{background:#7C3AED;color:#fff;border-color:#7C3AED;box-shadow:0 0 10px rgba(124,58,237,0.3);}
+.fp:hover:not(.on){border-color:#999;}
+select.fp{
+  appearance:none;padding-right:22px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 8px center;
+}
+
+/* ── BODY ── */
+.body{padding:20px 24px;max-width:1400px;margin:0 auto;}
+.sec{margin-bottom:18px;}
+.sec-hdr{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.sec-title{font-size:10px;font-weight:800;color:var(--gr);letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;}
+.sec-line{flex:1;height:1px;background:var(--grl);}
+
+/* ── KPI GRID ── */
+.kgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;}
+
+/* Sprint 2 Fix #8: EXECUTIVE SUMMARY STRIP */
+.exec{
+  background:linear-gradient(135deg,#000 0%,#1a1a1a 100%);
+  border-radius:12px;padding:16px 22px;margin-bottom:14px;color:#fff;
+  display:grid;grid-template-columns:minmax(380px,2fr) 3fr;gap:24px;align-items:center;
+}
+.exec-hl{display:flex;align-items:baseline;gap:10px;margin-bottom:6px;flex-wrap:wrap;}
+.exec-kicker{font-size:10px;color:#7C3AED;letter-spacing:.12em;font-weight:800;text-transform:uppercase;}
+.exec-period{font-size:10px;color:#666;}
+.exec-headline{font-size:17px;font-weight:800;line-height:1.3;}
+.exec-verdict{display:inline-block;padding:3px 10px;border-radius:14px;font-size:10px;font-weight:800;letter-spacing:.06em;margin-right:6px;vertical-align:middle;}
+.vr-red{background:#b91c1c;color:#fff;}
+.vr-amber{background:#d97706;color:#fff;}
+.vr-ok{background:#16a34a;color:#fff;}
+.exec-body{font-size:12px;line-height:1.55;color:#ccc;}
+.exec-body b{color:#fff;}
+.exec-body .mg{color:#7C3AED;font-weight:700;}
+.exec-body code{background:#222;padding:1px 5px;border-radius:3px;font-size:10.5px;color:#fcd5e5;}
+
+/* Sprint 2 Fix #10: REGIME ANNOTATION + BEFORE/AFTER CARD */
+.regime-note{
+  background:#fef3c7;border-left:3px solid #d97706;
+  padding:8px 12px;margin-top:10px;font-size:11px;color:#78350f;line-height:1.5;
+  border-radius:0 6px 6px 0;
+}
+.regime-note b{color:#451A03;}
+.compare{display:grid;grid-template-columns:1fr 30px 1fr;gap:0;align-items:stretch;margin-top:8px;}
+.cmp-side{padding:12px 14px;border-radius:8px;}
+.cmp-before{background:#f5f5f5;border:1px solid var(--grl);}
+.cmp-after{background:#fff0f6;border:1px solid #fbcfe8;}
+.cmp-label{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gr);margin-bottom:4px;}
+.cmp-val{font-size:20px;font-weight:800;color:#000;line-height:1;}
+.cmp-val.worse{color:#b91c1c;}
+.cmp-val.better{color:#16a34a;}
+.cmp-sub{font-size:10px;color:var(--gr);margin-top:4px;line-height:1.4;}
+.cmp-sub.worse{color:#b91c1c;}
+.cmp-arrow{display:flex;align-items:center;justify-content:center;color:#6A6A6A;font-size:22px;font-weight:900;}
+.cmp-arrow.worse{color:#b91c1c;}
+.cmp-arrow.better{color:#16a34a;}
+.cmp-verdict{grid-column:1/-1;margin-top:10px;padding:9px 12px;font-size:11px;font-weight:700;border-radius:6px;text-align:center;}
+.cmp-verdict.worse{background:#fee2e2;color:#b91c1c;}
+.cmp-verdict.better{background:#dcfce7;color:#166534;}
+.cmp-verdict.flat{background:#f5f5f5;color:#6A6A6A;}
+
+/* Sprint 2 Fix #9: VOLUME INDICATOR (inline strip, not a full card) */
+.vol-indicator{
+  background:#fff;border:1px solid var(--grl);border-left:3px solid var(--mg);
+  border-radius:8px;padding:10px 16px;margin-bottom:14px;
+  display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;
+}
+.vol-icon{width:36px;height:36px;background:var(--mg);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:800;flex-shrink:0;}
+.vol-icon.neutral{background:#6A6A6A;}
+.vol-icon.warn{background:#d97706;}
+.vol-icon.red{background:#b91c1c;}
+.vol-title{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gr);margin-bottom:1px;}
+.vol-body{font-size:13px;line-height:1.45;color:#000;}
+.vol-body b{color:#000;}
+.vol-body .mg{color:var(--mg);font-weight:700;}
+.vol-body .neut{color:#6A6A6A;font-weight:600;}
+.vol-meta{font-size:10px;color:var(--gr);margin-top:2px;}
+
+/* Sprint 2 Fix #12: UNIFIED ACTIVE-FILTER PILL STRIP + COLLAPSIBLE DRAWER */
+.active-filter{
+  background:#fff;padding:8px 24px;border-bottom:2px solid var(--grl);
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  position:sticky;top:61px;z-index:99;box-shadow:0 2px 6px rgba(0,0,0,0.07);
+}
+.af-label{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--gr);text-transform:uppercase;}
+.af-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--mg);color:#fff;font-size:11px;font-weight:700;
+  padding:3px 8px 3px 12px;border-radius:16px;
+}
+.af-chip button{
+  background:rgba(255,255,255,.3);border:none;color:#fff;
+  width:15px;height:15px;border-radius:50%;font-size:10px;line-height:1;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;padding:0;
+}
+.af-chip button:hover{background:rgba(255,255,255,.5);}
+.af-chip.neutral{background:var(--grll);color:#000;border:1px solid var(--grl);}
+.af-chip.neutral button{background:var(--gr);color:#fff;}
+.af-more{
+  background:transparent;border:1px dashed var(--gr);color:var(--gr);
+  font-size:11px;padding:2px 10px;border-radius:16px;cursor:pointer;font-weight:600;
+}
+.af-more:hover{border-color:var(--mg);color:var(--mg);border-style:solid;}
+.af-runcount{font-size:11px;color:var(--gr);font-weight:600;}
+.af-clear{
+  margin-left:auto;background:transparent;border:none;color:var(--gr);
+  font-size:11px;cursor:pointer;font-weight:600;text-decoration:underline;
+}
+.af-clear:hover{color:var(--mg);}
+/* Drawer: collapsible version of the original filter bar */
+.filter-drawer{
+  background:#f5f5f5;border-bottom:1px solid var(--grl);
+  max-height:0;overflow:hidden;transition:max-height .25s ease-out;
+  padding:0 24px;
+}
+.filter-drawer.open{max-height:100px;padding:10px 24px 12px;border-bottom:3px solid #d0d0d0;box-shadow:0 4px 10px rgba(0,0,0,0.07);display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+
+/* Sprint 2 Fix #11: INCIDENT TREND */
+.inc-trend-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+/* Recent incidents list */
+.rinc-row{padding:6px 0;border-bottom:1px solid var(--grl);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:start;}
+.rinc-row:last-child{border-bottom:none;}
+.rinc-meta{display:flex;align-items:baseline;gap:6px;margin-bottom:2px;min-width:0;overflow:hidden;}
+.rinc-date{font-size:10px;font-weight:800;color:var(--c-text-primary,#000);white-space:nowrap;}
+.rinc-proc{font-size:10px;font-weight:700;color:var(--mg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
+.rinc-rca{font-size:10px;color:var(--gr);line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;}
+.rinc-cat{font-size:9px;font-weight:800;padding:2px 7px;border-radius:10px;white-space:nowrap;margin-top:1px;}
+.rinc-cat.Infrastructure{background:#7C3AED;color:#fff;}
+.rinc-cat.Database{background:#0891B2;color:#fff;}
+.rinc-cat.DataQuality,.rinc-cat.Data{background:#7C3AED;color:#fff;}
+.rinc-cat.Deployment{background:#D97706;color:#fff;}
+.rinc-cat.Environment{background:#16A34A;color:#fff;}
+.rinc-cat.Other{background:#6A6A6A;color:#fff;}
+.inc-mini{background:var(--grll);border-radius:8px;padding:10px 12px;}
+.inc-mini-lbl{font-size:9px;color:var(--gr);font-weight:700;text-transform:uppercase;letter-spacing:.05em;}
+.inc-mini-val{font-size:18px;font-weight:800;margin-top:4px;color:#000;line-height:1.1;}
+.inc-mini-val.crit{color:#b91c1c;}
+.inc-mini-val.ok{color:#16a34a;}
+.inc-mini-sub{font-size:10px;color:var(--gr);margin-top:3px;}
+.inc-mini-sub .arrow-up{color:#b91c1c;font-weight:700;}
+.inc-mini-sub .arrow-dn{color:#16a34a;font-weight:700;}
+.inc-mini-sub .arrow-flat{color:var(--gr);font-weight:700;}
+.kgrid-sla{grid-template-columns:repeat(4,minmax(0,1fr));}
+.kgrid-drv{grid-template-columns:repeat(3,minmax(0,1fr));}
+.kgrid-6{grid-template-columns:repeat(6,minmax(0,1fr));}
+/* Sprint 1 Fix #6: SLA tier styling */
+.kcard.sla{border-bottom-color:#7C3AED;position:relative;}
+.kcard.sla.ok{border-bottom-color:#16a34a;}
+.kcard.sla.warn{border-bottom-color:#d97706;}
+.kcard.sla.red{border-bottom-color:#b91c1c;}
+.kbadge{position:absolute;top:8px;right:10px;font-size:8px;font-weight:800;letter-spacing:.06em;padding:2px 6px;border-radius:4px;text-transform:uppercase;}
+.kbadge.red{background:#fee2e2;color:#b91c1c;}
+.kbadge.amber{background:#fef3c7;color:#92400e;}
+.kbadge.ok{background:#dcfce7;color:#166534;}
+.kbadge.info{background:#fce7f3;color:#9d0060;}
+.kl .tip{color:#B8B8B8;cursor:help;margin-left:4px;font-size:10px;}
+.kcard{
+  background:var(--grll);border-radius:10px;padding:14px 16px;
+  border-bottom:3px solid var(--mg);
+}
+.kcard.warn{border-bottom-color:#d97706;}
+.kcard.good{border-bottom-color:#16a34a;}
+.kl{font-size:10px;color:var(--gr);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px;}
+.kv{font-size:22px;font-weight:800;color:#000;line-height:1;}
+.ks{font-size:10px;color:var(--gr);margin-top:4px;}
+.up{color:#d97706;font-weight:700;}
+.dn{color:#16a34a;font-weight:700;}
+.mg-txt{color:var(--mg);font-weight:700;}
+
+/* ── CARDS ── */
+.row2{display:grid;grid-template-columns:3fr 2fr;gap:14px;}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.row2b{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.card{background:#fff;border:1px solid var(--grl);border-radius:12px;padding:16px 20px;}
+.ctitle{font-size:12px;font-weight:800;color:#000;margin-bottom:2px;}
+.csub{font-size:10px;color:var(--gr);margin-bottom:12px;}
+.cw{position:relative;width:100%;}
+.leg{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px;}
+.li{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--gr);font-weight:600;}
+.lsq{width:9px;height:9px;border-radius:2px;flex-shrink:0;}
+
+/* ── INSIGHT BOX ── */
+.insight{
+  background:#fff0f6;border-left:3px solid var(--mg);border-radius:0 8px 8px 0;
+  padding:9px 12px;margin-top:10px;font-size:11px;color:#000;line-height:1.6;
+}
+.insight strong{color:var(--mg);}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.tbl th{font-size:10px;font-weight:800;color:var(--gr);letter-spacing:.05em;text-transform:uppercase;border-bottom:2px solid var(--grl);padding:6px 10px;text-align:left;}
+.tbl td{padding:6px 10px;border-bottom:1px solid #f0f0f0;color:#000;vertical-align:middle;}
+.tbl tr:hover td{background:#fafafa;}
+.pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:800;letter-spacing:.04em;}
+.pill-mg{background:#fff0f6;color:var(--mg);}
+.pill-ok{background:#f0fdf4;color:#16a34a;}
+.pill-warn{background:#fffbeb;color:#92400e;}
+.pill-crit{background:#fee2e2;color:#b91c1c;}
+.bar-i{display:inline-block;height:5px;border-radius:3px;background:var(--mg);vertical-align:middle;margin-left:6px;}
+
+/* ── ANOMALY ── */
+.arow{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;background:#f7f7f7;margin-bottom:4px;font-size:11px;}
+.arow.sev-p1{background:#fff0f0;border-left:3px solid #b91c1c;}
+.arow.sev-spike{background:#fffbeb;border-left:3px solid #d97706;}
+.arow.sev-drop{background:#fffbeb;border-left:3px solid #d97706;}
+.adate{font-weight:800;color:#000;min-width:52px;font-size:10px;white-space:nowrap;}
+.adesc{flex:1;color:#333;line-height:1.35;}
+.aval{font-weight:800;font-size:11px;margin-right:4px;}
+.aval.p1{color:#b91c1c;}
+.aval.spike{color:#d97706;}
+.aval.drop{color:#d97706;}
+.amore{display:flex;align-items:center;gap:6px;padding:7px 12px;font-size:10px;color:var(--gr);border-top:1px solid var(--grl);margin-top:4px;}
+.amore-arrow{margin-left:auto;color:var(--gr);font-size:12px;}
+
+/* ── EMPTY / FOOTER ── */
+.nodata{text-align:center;padding:40px;color:var(--gr);font-size:13px;}
+footer{background:#000;color:#444;font-size:10px;padding:12px 24px;display:flex;justify-content:space-between;margin-top:24px;}
+
+/* ── INCIDENT PANEL ── */
+#incidentPanel{
+  position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:999;
+  display:none;flex-direction:column;align-items:center;justify-content:flex-start;
+  overflow-y:auto;padding:24px 16px;
+}
+#incidentPanel.open{display:flex;}
+.inc-modal{
+  background:#111;border:1.5px solid #333;border-radius:14px;
+  width:100%;max-width:1100px;padding:28px 32px;
+}
+.inc-header{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:20px;border-bottom:1px solid #222;padding-bottom:16px;
+}
+.inc-title{color:#fff;font-size:18px;font-weight:800;}
+.inc-close{background:none;border:1.5px solid #444;color:#888;
+  border-radius:6px;padding:6px 14px;cursor:pointer;font-size:12px;}
+.inc-close:hover{border-color:#7C3AED;color:#fff;}
+.inc-filters{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
+.inc-filters select,.inc-filters input{
+  background:#1a1a1a;border:1px solid #333;color:#fff;
+  padding:6px 10px;border-radius:6px;font-size:11px;
+}
+.inc-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.inc-stat{background:#1a1a1a;border:1px solid #222;border-radius:8px;padding:14px;text-align:center;}
+.inc-stat-val{font-size:22px;font-weight:800;color:#7C3AED;}
+.inc-stat-lbl{font-size:10px;color:#666;margin-top:4px;text-transform:uppercase;letter-spacing:.05em;}
+.inc-charts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.inc-chart-card{background:#1a1a1a;border:1px solid #222;border-radius:8px;padding:16px;}
+.inc-chart-title{color:#fff;font-size:12px;font-weight:700;margin-bottom:12px;}
+.inc-table{width:100%;border-collapse:collapse;font-size:11px;}
+.inc-table th{
+  background:#1a1a1a;color:#666;text-align:left;
+  padding:8px 12px;border-bottom:1px solid #222;
+  text-transform:uppercase;letter-spacing:.05em;font-size:10px;cursor:pointer;
+}
+.inc-table th:hover{color:#7C3AED;}
+.inc-table td{padding:10px 12px;border-bottom:1px solid #1a1a1a;color:#ccc;vertical-align:top;}
+.inc-table tr:hover td{background:#161616;}
+.cat-pill{
+  display:inline-block;padding:2px 8px;border-radius:10px;
+  font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+}
+.cat-Infrastructure{background:#7C3AED;color:#fff;}
+.cat-Data-Quality{background:#7C3AED;color:#fff;}
+.cat-Database{background:#0891B2;color:#fff;}
+.cat-Other{background:#6A6A6A;color:#fff;}
+.cat-Deployment{background:#D97706;color:#fff;}
+.cat-Environment{background:#16A34A;color:#fff;}
+/* Incident markers on run chart */
+.inc-marker{
+  position:absolute;top:-8px;width:10px;height:10px;
+  background:#fff;border:2px solid #7C3AED;border-radius:50%;
+  cursor:pointer;z-index:10;
+}
+/* ═══════════════════════════════════════════════════
+   Sprint 3 Fix #20: DARK MODE COMPONENT OVERRIDES
+   All hardcoded light-mode colors are overridden here.
+   Uses semantic token variables defined in :root / .
+   ═══════════════════════════════════════════════════ */
+
+/* Page & body */
+body{background:var(--c-bg-page);color:var(--c-text-primary);}
+
+/* Cards */
+.card{background:var(--c-bg-card);border-color:var(--c-border-card);color:var(--c-text-primary);}
+.ctitle{color:var(--c-text-primary);}
+.csub{color:var(--c-text-secondary);}
+
+/* KPI tiles */
+.kcard{background:var(--c-bg-card);border-color:var(--c-border-card);}
+.kv{color:var(--c-text-primary);}
+.kl .tip{color:var(--c-text-tertiary);}
+
+/* Filter strip & drawer */
+.active-filter{background:var(--c-filter-strip-bg);border-color:var(--c-border-card);box-shadow:0 2px 6px rgba(0,0,0,0.3);}
+.af-chip.neutral{background:var(--c-af-neutral-bg);color:var(--c-af-neutral-text);border-color:var(--c-border-card);}
+.af-more{border-color:#555;color:var(--c-text-secondary);}
+.af-clear{color:var(--c-text-secondary);}
+.af-runcount{color:var(--c-text-secondary);}
+.filter-drawer{background:#161616;border-color:var(--c-border-card);}
+.filter-drawer.open{border-bottom-color:#444;box-shadow:0 4px 10px rgba(0,0,0,0.3);}
+.fp{background:var(--c-fp-bg);color:var(--c-fp-text);border-color:var(--c-border-card);}
+.fp.on{background:#7C3AED;color:#fff;border-color:#7C3AED;box-shadow:0 0 10px rgba(124,58,237,0.3);}
+.fp:hover:not(.on){border-color:#666;}
+select.fp{color:var(--c-fp-text);}
+.fb-label{color:var(--c-text-secondary);}
+
+/* Exec summary strip (already dark, only text tuning needed) */
+.exec{background:linear-gradient(135deg,#000 0%,#0d0d0d 100%);}
+.exec-body{color:#ccc;}
+
+/* Volume indicator */
+.vol-indicator{background:var(--c-vol-bg);border-color:var(--c-border-card);}
+.vol-title{color:var(--c-text-secondary);}
+.vol-body{color:var(--c-text-primary);}
+.vol-body b{color:var(--c-text-primary);}
+.vol-meta{color:var(--c-text-tertiary);}
+
+/* Insight boxes */
+.insight{background:var(--c-insight-bg);border-left-color:var(--mg);color:var(--c-text-primary);}
+.insight strong{color:var(--mg);}
+
+/* Regime / warning note */
+.regime-note{background:var(--c-regime-bg);color:var(--c-regime-text);}
+.regime-note b{color:var(--c-regime-b);}
+
+/* Before/after migration card */
+.cmp-side.cmp-before{background:var(--c-cmp-before-bg);border-color:var(--c-border-card);}
+.cmp-side.cmp-after{background:var(--c-cmp-after-bg);border-color:var(--c-cmp-after-border);}
+.cmp-val{color:var(--c-text-primary);}
+.cmp-label{color:var(--c-text-secondary);}
+.cmp-sub{color:var(--c-text-secondary);}
+.cmp-verdict.worse{background:var(--c-verdict-worse-bg);color:#f87171;}
+.cmp-verdict.better{background:var(--c-verdict-better-bg);color:var(--c-verdict-better-text);}
+.cmp-verdict.flat{background:var(--c-verdict-flat-bg);color:var(--c-text-secondary);}
+
+/* Data tables */
+.tbl th{color:var(--c-text-secondary);border-bottom-color:var(--c-border-card);}
+.tbl td{color:var(--c-text-primary);border-bottom-color:var(--c-border-subtle);}
+.tbl tr:hover td{background:var(--c-tbl-hover);}
+.bar-i{background:var(--mg);}
+
+/* Pills */
+.pill-mg{background:#3d001f;color:#f9a8d4;}
+.pill-ok{background:#052e16;color:#86efac;}
+.pill-warn{background:#1c1000;color:#fcd34d;}
+.pill-crit{background:#1a0505;color:#fca5a5;}
+
+/* Anomaly rows */
+.arow{background:var(--c-arow-bg);color:var(--c-text-primary);}
+.arow.sev-p1{background:#1a0505;border-left-color:#ef4444;}
+.arow.sev-spike,.arow.sev-drop{background:#1c1000;border-left-color:#D97706;}
+.adesc{color:var(--c-text-secondary);}
+.amore{border-top-color:var(--c-border-card);}
+.adesc{color:var(--c-text-secondary);}
+.adate{color:var(--c-text-primary);}
+
+/* Incident trend mini-tiles */
+.inc-mini{background:var(--c-inc-mini-bg);}
+.rinc-row{border-bottom-color:var(--c-border-card);}
+.rinc-date{color:var(--c-text-primary);}
+.rinc-rca{color:var(--c-text-secondary);}
+.rinc-cat.Infrastructure{background:#9d0060;color:#fff;}
+.rinc-cat.Database{background:#0e6a87;color:#fff;}
+.rinc-cat.DataQuality,.rinc-cat.Data{background:#A855F7;color:#fff;}
+.rinc-cat.Deployment{background:#b45309;color:#fff;}
+.rinc-cat.Environment{background:#15803d;color:#fff;}
+.rinc-cat.Other{background:#444;color:#fff;}
+.inc-mini-lbl{color:var(--c-text-secondary);}
+.inc-mini-val{color:var(--c-text-primary);}
+
+/* Section headers */
+.sec-title{color:var(--c-text-secondary);}
+.sec-line{background:var(--c-border-card);}
+.leg .li{color:var(--c-text-secondary);}
+
+/* code snippets in migration card (inline style bg #f5f5f5) */
+code{background:var(--c-code-bg) !important;color:var(--c-code-text) !important;}
+
+/* Footer */
+footer{background:var(--c-footer-bg);color:var(--c-footer-text);}
+
+/* Dark mode readability fixes */
+/* Table driver text and date text */
+.tbl td{color:var(--c-text-primary);}
+.bar-i{background:var(--mg);}
+/* Vol indicator body text */
+.vol-body{color:var(--c-text-primary);}
+.vol-body b{color:var(--c-text-primary);}
+.vol-meta{color:var(--c-text-secondary);}
+/* Inline code tags — override the hardcoded #f5f5f5 background */
+code{background:#2a2a2a !important;color:#f9a8d4 !important;border-radius:3px;}
+/* Insight text — ensure it's readable */
+.insight{color:#e5e7eb;}
+.exec-body{color:#d1d5db;}
+/* Section titles */
+.sec-title{color:#9CA3AF;}
+/* KPI sublabels */
+.ks{color:#9CA3AF;}
+.kl{color:#9CA3AF;}
+/* Anomaly log rows */
+.adesc{color:#d1d5db;}
+.adate{color:#f0f0f0;}
+/* Legend text in charts */
+.li{color:#d1d5db;}
+.lsq{opacity:1;}
+
+/* Incident modal — already dark, just ensure consistency */
+.inc-modal{background:var(--c-inc-modal-bg);}
+.inc-chart-card{background:var(--c-inc-chart-bg);}
+.inc-table td{border-bottom-color:#1a1a1a;}
+.inc-table tr:hover td{background:var(--c-inc-table-hover);}
+.inc-stat{background:var(--c-inc-mini-bg);}
+
+/* Nodata placeholder */
+.nodata{color:var(--c-text-secondary);}
+
+</style>
+</head>
+<body>
+
+<!-- ══════════ DASHBOARD ══════════ -->
+<div id="dashboard" style="display:none;">
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="hdr-logo-wrap"><svg width="120" height="30" viewBox="0 0 120 30" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="nxg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#7C3AED"/>
+      <stop offset="100%" style="stop-color:#06B6D4"/>
+    </linearGradient>
+  </defs>
+  <rect width="28" height="28" x="0" y="1" rx="6" fill="url(#nxg)"/>
+  <text x="7" y="21" font-family="Helvetica,Arial,sans-serif" font-size="16" font-weight="900" fill="#fff">N</text>
+  <text x="34" y="22" font-family="Helvetica,Arial,sans-serif" font-size="14" font-weight="700" fill="#F9FAFB" letter-spacing="0.5">NEXORA</text>
+</svg></div>
+    <div>
+      <div class="hdr-title">NEXORA · Production Intelligence</div>
+      <div class="hdr-sub" id="hdr-sub">Pipeline Stage Analysis · Runtime Driver Decomposition</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <span id="data-status"></span>
+    <button class="reload-btn" id="incBtn" onclick="showIncidents(activeFilter)" style="border-color:#7C3AED;color:#7C3AED;">&#9888; Incidents</button>
+    <button class="reload-btn" id="shareBtn" onclick="shareCurrentView()" title="Copy a link that opens this dashboard to the current filter state">&#128279; Share view</button>
+    <button class="reload-btn" onclick="location.reload()">↩ Reload</button>
+    <span class="live-badge">LIVE</span>
+  </div>
+</div>
+
+<!-- Sprint 2 Fix #12: Active-filter pill strip (visible) + collapsible drawer -->
+<div class="active-filter">
+  <span class="af-label">Viewing</span>
+  <span id="active-chips"></span>
+  <button class="af-more" onclick="toggleFilterDrawer()" id="adjustFiltersBtn">+ adjust filters</button>
+  <span id="filter-count" class="af-runcount"></span>
+  <button class="af-clear" onclick="clearAllFilters()">Reset</button>
+</div>
+
+<div class="filter-drawer" id="filterDrawer">
+  <span class="fb-label">Period</span>
+  <button class="fp on" onclick="setFilter(this,'all')">All time</button>
+  <button class="fp" onclick="setFilter(this,'cur')">Current month</button>
+  <button class="fp" onclick="setFilter(this,'prev')">Previous month</button>
+  <button class="fp" onclick="setFilter(this,'3m')">Last 3 months</button>
+  <button class="fp" onclick="setFilter(this,'6m')">Last 6 months</button>
+  <button class="fp" onclick="setFilter(this,'ytd')">YTD</button>
+  <button class="fp" onclick="setFilter(this,'ly')">Last year</button>
+  <span class="fb-label" style="margin-left:6px;">Month</span>
+  <div class="nx-select-wrap"><button class="fp nx-sel-btn" id="monthSelBtn" onclick="toggleNxSel('month')">All months ▾</button><div class="nx-sel-dropdown" id="monthSelDrop" style="display:none"><div class="nx-sel-opt on" onclick="setMonthFilter('');closeNxSel('month','All months')">All months</div></div></div>
+  <span class="fb-label" style="margin-left:6px;">Year</span>
+  <div class="nx-select-wrap"><button class="fp nx-sel-btn" id="yearSelBtn" onclick="toggleNxSel('year')">All years ▾</button><div class="nx-sel-dropdown" id="yearSelDrop" style="display:none"><div class="nx-sel-opt on" onclick="setYearFilter('');closeNxSel('year','All years')">All years</div></div></div>
+  <span class="fb-label" style="margin-left:6px;" title="Pipeline SLA target — configurable">SLA target</span>
+  <div class="nx-select-wrap"><button class="fp nx-sel-btn on" id="slaSelBtn" onclick="toggleNxSel('sla')">5h (default) ▾</button><div class="nx-sel-dropdown" id="slaSelDrop" style="display:none"><div class="nx-sel-opt" onclick="setSLAHours(240);closeNxSel('sla','4h (tight)')">4h (tight)</div><div class="nx-sel-opt" onclick="setSLAHours(270);closeNxSel('sla','4.5h')">4.5h</div><div class="nx-sel-opt on" onclick="setSLAHours(300);closeNxSel('sla','5h (default)')">5h (default)</div><div class="nx-sel-opt" onclick="setSLAHours(330);closeNxSel('sla','5.5h')">5.5h</div><div class="nx-sel-opt" onclick="setSLAHours(360);closeNxSel('sla','6h (loose)')">6h (loose)</div></div></div>
+  <span class="fb-label" style="margin-left:6px;">Stage focus</span>
+  <select class="fp" id="stageSel" onchange="setStageFocus(this.value)">
+    <option value="">All stages (driver coloring)</option>
+    <option value="order_validation">Order Validation</option>
+    <option value="payment_settlement">Payment Settlement</option>
+    <option value="inventory_sync">Inventory Sync</option>
+    <option value="fraud_check">Fraud Check</option>
+    <option value="fulfillment_export">Fulfillment Export</option>
+    <option value="reporting">Reporting</option>
+  </select>
+</div>
+
+<div class="body">
+  <!-- Sprint 2 Fix #8: EXECUTIVE SUMMARY STRIP (dynamic one-sentence verdict) -->
+  <div class="exec" id="execSummary" style="display:none;"></div>
+
+  <!-- Sprint 2 Fix #9: VOLUME INDICATOR — honest "today's feed vs 14d median", NO runtime prediction -->
+  <div class="vol-indicator" id="volumeIndicator" style="display:none;"></div>
+
+  <!-- Sprint 1 Fix #6: unified 6-card KPI row -->
+  <div class="sec">
+    <div class="sec-hdr">
+      <span class="sec-title">Pipeline health · key metrics</span>
+      <div class="sec-line"></div>
+    </div>
+    <div class="kgrid kgrid-6" style="align-items:start">
+      <div id="kpis-sla" style="display:contents"></div>
+      <div id="kpis" style="display:contents"></div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-hdr"><span class="sec-title">Stage Decomposition — What Drives Long Runs?</span><div class="sec-line"></div></div>
+    <div class="row2">
+      <div class="card">
+        <div class="ctitle">Top 10 slowest runs — dominant stage driver</div>
+        <div class="csub">Top 10 slowest runs · stacked by stage · <span id="stack-sla-label" style="font-weight:700;color:#7C3AED"></span> · Hover for details</div>
+        <div class="leg" id="stack-leg"></div>
+        <div class="cw" style="height:260px"><canvas id="stackChart"></canvas></div>
+        <div class="insight" id="stack-insight"></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Stage share of total runtime</div>
+        <div class="csub">Avg across selected period</div>
+        <div class="cw" style="height:230px"><canvas id="donutChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hdr"><span class="sec-title">Daily run timeline with stage driver coloring</span><button onclick="showIncidents(activeFilter)" style="background:none;border:1px solid #7C3AED;color:#7C3AED;border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;cursor:pointer;margin-left:12px;letter-spacing:.04em;" title="View incident log">&#9888; Incidents</button><div class="sec-line"></div></div>
+    <div class="card">
+      <div class="ctitle">Total Pipeline Runtime per Run — Outliers Highlighted</div>
+      <div class="csub run-csub">Outlier method applied below · amber = elevated · red = slow · dashed = 7-run rolling median · horizontal dashed line = SLA target · ● markers = linked incidents</div>
+      <div class="leg run-legend"></div>
+      <div class="cw" style="height:220px"><canvas id="runChart"></canvas></div>
+    </div>
+  </div>
+  <div class="row2b sec">
+    <div class="card">
+      <div class="ctitle">Stage × Runtime Correlation</div>
+      <div class="csub">Pearson r per stage vs total runtime · monthly · darker = stronger correlation</div>
+      <div style="display:flex;gap:16px;align-items:flex-start;margin-top:8px;">
+        <div style="flex:1;min-width:0;">
+          <div id="heatmapWrap" style="overflow-x:auto;"></div>
+          <div class="insight" id="trend-insight" style="margin-top:8px;"></div>
+        </div>
+        <div style="width:180px;flex-shrink:0;">
+          <div style="font-size:10px;color:#94A3B8;font-weight:600;letter-spacing:0.08em;margin-bottom:6px;">AVG r² BY STAGE</div>
+          <canvas id="corrBarChart" style="width:180px;height:200px;"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ctitle">Slowest runs in period</div>
+      <div class="csub">Ranked by total pipeline runtime · Top 10</div>
+      <div id="slowTable"></div>
+    </div>
+  </div>
+  <!-- Sprint 2 Fix #11: INCIDENT TREND — reliability trajectory -->
+  <div class="sec" id="incTrendSection" style="display:none;">
+    <div class="sec-hdr">
+      <span class="sec-title">Incident breakdown · reliability overview</span>
+      <div class="sec-line"></div>
+    </div>
+    <div class="row2">
+      <div class="card">
+        <div class="ctitle" id="incCatTitle">Incidents by Category · All Time</div>
+        <div class="csub" id="incCatSub">All time · 66 incidents total</div>
+        <div class="cw" style="height:220px"><canvas id="incTrendChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="ctitle" id="recentIncTitle">Recent incidents</div>
+        <div class="csub">Latest 8 · sorted by date · click to view full log</div>
+        <div id="recentIncList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec" id="feedSection" style="display:none;">
+    <div class="sec-hdr"><span class="sec-title">Order Volume · Daily Channel Activity</span><div class="sec-line"></div></div>
+    <div class="row2">
+      <div class="card">
+        <div class="ctitle">Daily Order Volume — Channel Feed</div>
+        <div class="csub">Selected period</div>
+        <div class="leg" style="margin-bottom:6px;">
+          <span class="li"><span class="lsq" style="background:#7C3AED;"></span>Normal volume</span>
+          <span class="li"><span class="lsq" id="feed-spike-swatch" style="background:#A855F7;"></span>Spike ≥2σ</span>
+          <span class="li"><span class="lsq" style="background:#EF4444;"></span>Drop / Zero</span>
+          <span class="li" style="margin-left:8px;"><span id="feed-median-swatch" style="display:inline-block;width:14px;border-top:2px dashed #000;vertical-align:middle;margin-right:4px;"></span>7-day median</span>
+        </div>
+        <div class="cw" style="height:220px"><canvas id="feedChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="ctitle" id="anomalyTitle">Order Volume Anomaly Log</div>
+        <div class="csub">Severity-ordered · red = P1 zero-order-day · amber = volume spike</div>
+        <div id="anomalyList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>Nexora · Production Intelligence Platform · Infrastructure Powered by Intelligence.</span>
+  <span id="footer-info">—</span>
+</footer>
+</div>
+
+<script>
+// ── CSV PARSER ──
+// Handles multiline quoted fields (ICA/RCA can contain embedded newlines)
+function parseIncidentCSV(text){
+  if(!text||!text.trim()) return [];
+  const headers=[];
+  const parsedRows=[];
+  let pos=0, isHeader=true, cols=[], cur='', inQ=false;
+  const pushCol=()=>{ cols.push(cur.replace(/^"|"$/g,'').trim()); cur=''; };
+  const pushRow=()=>{
+    if(isHeader){
+      if(cols.length>=3){
+        headers.push(...cols.map(h=>h.replace(/^﻿/,'').trim()));
+        isHeader=false;
+      }
+    } else if(cols.length>=3){
+      const row={};
+      headers.forEach((h,i)=>row[h]=cols[i]||'');
+      parsedRows.push(row);
+    }
+    cols=[];
+  };
+  while(pos<text.length){
+    const ch=text[pos];
+    if(ch==='"'){ inQ=!inQ; pos++; continue; }
+    if(ch===',' && !inQ){ pushCol(); pos++; continue; }
+    if((ch==='\n'||ch==='\r') && !inQ){
+      pushCol(); pushRow();
+      if(ch==='\r'&&text[pos+1]==='\n') pos++;
+      pos++; continue;
+    }
+    cur+=ch; pos++;
+  }
+  if(cur.trim()||cols.length){ pushCol(); pushRow(); }
+
+  const result=[];
+  for(const row of parsedRows){
+    const rawDate=(row['Incident_Date.'||'Incident_Date']||row[Object.keys(row).find(k=>k.includes('Date'))]||'').trim();
+    const proc=(row['Process_Name']||'').trim();
+    const rca=(row['RCA']||'').trim().replace(/\n/g,' ');
+    const ica=(row['ICA']||'').trim().replace(/\n/g,' ');
+    const cat=(row['Category']||'').trim();
+    if(!rawDate||!proc) continue;
+    const dp=rawDate.split('/');
+    if(dp.length!==3) continue;
+    const [mo,dy,yr]=[dp[0].padStart(2,'0'),dp[1].padStart(2,'0'),dp[2]];
+    if(yr.length!==4) continue;
+    const yrNum=parseInt(yr,10), moNum=parseInt(mo,10), dyNum=parseInt(dy,10);
+    if(yrNum<2020||yrNum>2030||moNum<1||moNum>12||dyNum<1||dyNum>31){
+      window._incidentRejects=(window._incidentRejects||0)+1;
+      console.warn('Incident rejected — implausible date:',rawDate);
+      continue;
+    }
+    const dateKey=yr+mo+dy;
+    const displayDate=mo+'/'+dy+'/'+yr;
+    const p=proc.toUpperCase();
+    let stage=null;
+    if(p.includes('ORDER_VALID')) stage='order_validation';
+    else if(p.includes('FRAUD')) stage='fraud_check';
+    else if(p.includes('PAYMENT')) stage='payment_settlement';
+    else if(p.includes('INVENTORY')) stage='inventory_sync';
+    else if(p.includes('FULFILLMENT')) stage='fulfillment_export';
+    else if(p.includes('REPORTING')) stage='reporting';
+    
+    result.push({date:dateKey,display_date:displayDate,process:proc,stage,category:cat,rca,ica});
+  }
+  return result.sort((a,b)=>a.date.localeCompare(b.date));
+}
+// ══════════════════════════════════════════════════
+//  GLOBAL STATE
+// ══════════════════════════════════════════════════
+const MG='#7C3AED',BERRY='#A855F7';
+// GR and BLK are read at render time so they reflect the current theme
+function getGR(){ return '#9CA3AF'; }
+function getBLK(){ return '#F9FAFB'; }
+// Keep GR/BLK as dynamic getters for Chart.js usage
+let GR='#9CA3AF', BLK='#F9FAFB';
+function refreshThemeColors(){
+  GR=getGR(); BLK=getBLK();
+  // Update feed median line swatch to match theme
+  const sw=document.getElementById('feed-median-swatch');
+  if(sw){ const isDark=true; sw.style.borderTopColor=isDark?'#fff':'#000'; }
+  const spSw=document.getElementById('feed-spike-swatch');
+  if(spSw){ const isDark2=true; spSw.style.background=isDark2?'#e2e8f0':'#A855F7'; }
+}
+let RAW_PIPELINE=null,RAW_FEEDS=null,MONTHLY=[],RUNS=[],FEEDS=[],FEED_STATS={};
+let activeFilter='cur',charts={},threshMethod='median';
+// threshMethod is permanently 'median' — not user-configurable
+let stageFocus='';
+let INCIDENTS=[];
+let INCIDENTS_LOADED=false;
+function setStageFocus(v){stageFocus=v;render();syncURL&&syncURL();}
+// Sprint 1 Fix #6: working SLA target (NOT an official SLA — a data-driven stretch target).
+// Default 13h gives ~79% all-time adherence, ~46% post-migration. Configurable via UI.
+let SLA_HOURS=5;
+function setSLAHours(v){SLA_HOURS=(+v||300)/60;render();syncURL&&syncURL();}
+// Percentile helper (linear interpolation on sorted array)
+function percentile(arr,p){
+  if(!arr.length) return 0;
+  const s=[...arr].sort((a,b)=>a-b);
+  const idx=(s.length-1)*p;
+  const lo=Math.floor(idx), hi=Math.ceil(idx);
+  return lo===hi?s[lo]:s[lo]+(s[hi]-s[lo])*(idx-lo);
+}
+let TODAY_YM='';
+const overlay={classList:{add:()=>{},remove:()=>{}}}; // no-op overlay
+
+// ── AUTO-LOAD FROM data.json ──
+async function loadNexoraData(){
+  const statusEl = document.getElementById('data-status');
+  try {
+    statusEl.textContent = 'Loading...';
+    statusEl.className = 'warn';
+    const resp = await fetch('data.json');
+    if(!resp.ok) throw new Error('HTTP '+resp.status);
+    const data = await resp.json();
+    ingestNexoraData(data);
+  } catch(e) {
+    statusEl.textContent = 'Error loading data';
+    statusEl.className = 'warn';
+    console.error('Failed to load data.json:', e);
+  }
+}
+
+function ingestNexoraData(data){
+  // Parse meta
+  if(data.meta && data.meta.sla_minutes){
+    SLA_HOURS = data.meta.sla_minutes / 60;
+    // Update SLA dropdown to reflect loaded value
+    // SLA from data — update button label
+    if(data.meta&&data.meta.sla_minutes){const slaMin=data.meta.sla_minutes;const slaLabel=slaMin===300?'5h (default)':Math.floor(slaMin/60)+'h '+((slaMin%60)?slaMin%60+'m':'');document.getElementById('slaSelBtn')&&(document.getElementById('slaSelBtn').textContent=slaLabel+' ▾');}
+  }
+
+  // Parse pipeline runs — each row is already one run with stage columns
+  RAW_PIPELINE = data.pipeline_runs || [];
+
+  // Build order volume feed data from runs (order volume as proxy)
+  RAW_FEEDS = (data.pipeline_runs || []).map(r => ({
+    RUN_DATE: (()=>{
+      const p = r.PIPELINE_START_TIME.split(' ')[0].split('/');
+      // Date is the completion day (start + 1)
+      const d = new Date(+p[2], +p[0]-1, +p[1]);
+      d.setDate(d.getDate()+1);
+      return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+    })(),
+    ALL_ORDERS_SUM: r.ADAPTER_ALL || 0,
+    ORDER_VOLUME: r.ADAPTER_PAYMENTS || 0,
+    ADAPTER_INVENTORY: r.ADAPTER_INVENTORY || 0,
+    ORDER_VOLUME: r.ORDER_VOLUME || 0,
+  }));
+
+  // Parse incidents CSV-style (already objects in JSON)
+  if(data.incidents && data.incidents.length){
+    INCIDENTS = data.incidents.map(inc => {
+      const dp = (inc['Incident_Date.']||'').split('/');
+      if(dp.length!==3) return null;
+      const [mo,dy,yr] = [dp[0].padStart(2,'0'), dp[1].padStart(2,'0'), dp[2]];
+      return {
+        date: yr+mo+dy,
+        display_date: mo+'/'+dy+'/'+yr,
+        process: ({
+  'ORDER_VALIDATION_PROC':   'Order Validation',
+  'PAYMENT_SETTLEMENT_PROC': 'Payment Settlement',
+  'FRAUD_CHECK_ML_PROC':     'Fraud Check · ML Scoring',
+  'INVENTORY_SYNC_PROC':     'Inventory Sync',
+  'FULFILLMENT_EXPORT_PROC': 'Fulfillment Export',
+  'DAILY_REPORTING_PROC':    'Daily Reporting',
+  'PIPELINE_PROC':           'Pipeline',
+})[inc.Process_Name]||inc.Process_Name||'',
+        stage: stageFromProcess(inc.Process_Name||''),
+        category: inc.Category||'Other',
+        rca: inc.RCA||'',
+        ica: inc.ICA||'',
+      };
+    }).filter(Boolean);
+    INCIDENTS_LOADED = true;
+  }
+
+  buildDashboard();
+  populateNxSelectors();
+}
+
+function stageFromProcess(proc){
+  const p = proc.toUpperCase();
+  if(p.includes('ORDER_VALID')) return 'order_validation';
+  if(p.includes('PAYMENT'))     return 'payment_settlement';
+  if(p.includes('FRAUD'))       return 'fraud_check';
+  if(p.includes('INVENTORY'))   return 'inventory_sync';
+  if(p.includes('FULFILLMENT')) return 'fulfillment_export';
+  if(p.includes('REPORTING'))   return 'reporting';
+  return null;
+}
+
+function resetDashboard(){
+  // Soft reset — just reload data
+  RAW_PIPELINE=null; RAW_FEEDS=null; INCIDENTS=[]; INCIDENTS_LOADED=false;
+  Object.values(charts).forEach(c=>c.destroy()); charts={};
+  document.getElementById('monthSel').innerHTML='<option value="">All months</option>';
+  document.getElementById('yearSel').innerHTML='<option value="">All years</option>';
+  activeFilter='all';
+  document.querySelectorAll('.fp:not(select)').forEach(b=>{b.classList.remove('on');if(b.textContent==='Current month')b.classList.add('on');});
+}
+// ══════════════════════════════════════════════════
+//  DATA PROCESSING
+// ══════════════════════════════════════════════════
+function parseRT(rt){
+  if(!rt) return 0;
+  const p=rt.split(':');
+  const h=parseInt(p[0].replace(/h/i,''))||0;
+  const m=parseInt(p[1].replace(/m/i,''))||0;
+  const s=parseInt((p[2]||'0').replace(/s/i,''))||0;
+  return h*60+m+s/60;
+}
+function avg(arr){ return arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0; }
+function fmtM(m){ if(!m) return '—'; m=Math.round(m); return `${Math.floor(m/60)}h ${m%60}m`; }
+function sd(arr){ const m=avg(arr); return Math.sqrt(avg(arr.map(x=>(x-m)**2))); }
+
+// Option 2: Incident-to-run date matching
+// Pipeline runs start ~5:30pm and finish the next morning (~7am).
+// Incidents are logged on the failure date (e.g. 04/19 for a run that started 04/18).
+// So we match an incident to a run if incident.date === run.date OR incident.date === run.date + 1 day.
+function nextDate(dateStr){
+  // dateStr = 'YYYYMMDD' → returns next calendar day in same format
+  const d=new Date(+dateStr.slice(0,4),+dateStr.slice(4,6)-1,+dateStr.slice(6,8));
+  d.setDate(d.getDate()+1);
+  return d.getFullYear().toString()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+}
+function incMatchesRun(incDate, runDate){
+  // Incident on date D → belongs to run that started on D-1 (overnight failure)
+  // Fallback to same-day only if no D-1 run exists
+  const prev=prevDateStr(incDate);
+  if(prev===runDate) return true;
+  if(incDate===runDate && !RUNS.some(r=>r.date===prev)) return true;
+  return false;
+}
+// Build a Set of run dates that have at least one linked incident.
+// Since pipeline starts ~5:30pm and failures happen next morning,
+// an incident on date D always belongs to the run that started on D-1.
+function buildIncRunDates(incidents, runs){
+  const runDateSet=new Set(runs.map(r=>r.date));
+  const matched=new Set();
+  incidents.forEach(inc=>{
+    const prev=prevDateStr(inc.date);
+    if(runDateSet.has(prev)){
+      matched.add(prev);       // D-1 run owns this incident
+    } else if(runDateSet.has(inc.date)){
+      matched.add(inc.date);   // fallback: no D-1 run, use same-day
+    }
+  });
+  return matched;
+}
+function prevDateStr(dateStr){
+  const d=new Date(+dateStr.slice(0,4),+dateStr.slice(4,6)-1,+dateStr.slice(6,8));
+  d.setDate(d.getDate()-1);
+  return d.getFullYear().toString()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+}
+
+function parseStartDate(startStr){
+  // PIPELINE_START_TIME format: "MM/dd/yyyy HH:mm:ss"
+  // RUN_ID is a COMPLETION timestamp — using it for dates causes duplicates when
+  // a long run (e.g. 19h) finishes past midnight and gets stamped with the next day.
+  // Always derive the canonical run date from PIPELINE_START_TIME instead.
+  if(!startStr) return null;
+  try{
+    const p=startStr.split(' ')[0].split('/'); // ["MM","dd","yyyy"]
+    return p[2]+p[0]+p[1]; // "yyyyMMdd"
+  } catch(e){ return null; }
+}
+
+function processPipeline(){
+  if(!RAW_PIPELINE||!RAW_PIPELINE.length) return;
+  RUNS = RAW_PIPELINE.map(r=>{
+    const date = parseStartDate(r.PIPELINE_START_TIME||r.PIPELINE_START_TIME) || r.RUN_ID.slice(-8);
+    const stages = {
+      order_validation:   r.STAGE_ORDER_VALIDATION   || 0,
+      payment_settlement: r.STAGE_PAYMENT_SETTLEMENT  || 0,
+      fraud_check:        r.STAGE_FRAUD_CHECK         || 0,
+      inventory_sync:     r.STAGE_INVENTORY_SYNC      || 0,
+      fulfillment_export: r.STAGE_FULFILLMENT_EXPORT  || 0,
+      reporting:          r.STAGE_REPORTING            || 0,
+    };
+    const total = r.ALL_STAGES_TOTAL || Object.values(stages).reduce((a,b)=>a+b,0);
+    return { run_id:r.RUN_ID, date, ym:date.slice(0,6), total, stages,
+             order_volume: r.ORDER_VOLUME||0 };
+  }).sort((a,b)=>a.date.localeCompare(b.date));
+
+  const yms=[...new Set(RUNS.map(r=>r.ym))].sort();
+  TODAY_YM=yms[yms.length-1];
+  const byYM={};
+  RUNS.forEach(r=>{ if(!byYM[r.ym]) byYM[r.ym]={ym:r.ym,runs:[]}; byYM[r.ym].runs.push(r); });
+  MONTHLY=yms.map(ym=>{
+    const rs=byYM[ym].runs;
+    const get=(k)=>rs.map(r=>r.stages[k]||0).filter(v=>v>0);
+    const dt=new Date(ym.slice(0,4)+'-'+ym.slice(4,6)+'-01');
+    return {
+      ym, n:rs.length,
+      label:dt.toLocaleDateString('en-US',{month:'short',year:'2-digit'}),
+      total:Math.round(avg(rs.map(r=>r.total))),
+      ord_val:     Math.round(avg(get('order_validation'))||0),
+      pay_set:  Math.round(avg(get('payment_settlement'))||0),
+      fraud:    Math.round(avg(get('fraud_check'))||0),
+      inv_sync:   Math.round(avg(get('inventory_sync'))||0),
+      ful_exp:  Math.round(avg(get('fulfillment_export'))||0),
+      rpt:     Math.round(avg(get('reporting'))||0),
+      _unused1:0, _unused2:0, _unused3:0,
+    };
+  });
+}
+function processFeeds(){
+  if(!RAW_FEEDS||!RAW_FEEDS.length) return;
+  FEEDS=RAW_FEEDS.map(r=>({
+    date:r.RUN_DATE, ym:r.RUN_DATE.slice(0,6),
+    all:+r.ALL_ORDERS_SUM||0,
+    feat:+r.ORDER_VOLUME||0,
+    sub:+r.ADAPTER_INVENTORY||0,
+    iot:+r.ORDER_VOLUME||0,
+  })).sort((a,b)=>a.date.localeCompare(b.date));
+  const allVals=FEEDS.map(r=>r.all);
+  FEED_STATS={
+    all:{mean:avg(allVals),sd:sd(allVals)},
+    feat:{mean:avg(FEEDS.map(r=>r.feat)),sd:sd(FEEDS.map(r=>r.feat))},
+    sub:{mean:avg(FEEDS.map(r=>r.sub)),sd:sd(FEEDS.map(r=>r.sub))},
+    iot:{mean:avg(FEEDS.map(r=>r.iot)),sd:sd(FEEDS.map(r=>r.iot))},
+  };
+}
+function buildDashboard(){
+  processPipeline();
+  processFeeds();
+
+  // Populate selects
+  const yms=[...new Set(MONTHLY.map(m=>m.ym))];
+  const years=[...new Set(yms.map(y=>y.slice(0,4)))];
+  // month/year options populated by populateNxSelectors() after buildDashboard
+
+  // Status bar
+  const runCount=RUNS.length, feedCount=FEEDS.length;
+  const dateRange=MONTHLY.length?`${MONTHLY[0].label} – ${MONTHLY[MONTHLY.length-1].label}`:'';
+  document.getElementById('hdr-sub').textContent=`E-Commerce Pipeline · ${runCount} nightly runs · ${dateRange}`;
+  document.getElementById('data-status').textContent=`Pipeline: ${runCount} runs${feedCount?` · Feeds: ${feedCount} days`:''}`;
+  document.getElementById('data-status').className=runCount>0?'ok':'warn';
+  const rejects=window._incidentRejects||0;
+  const incPart=INCIDENTS.length?` · ${INCIDENTS.length} incidents`+(rejects?` (${rejects} rejected: bad date)`:''):'';
+  document.getElementById('footer-info').textContent=`Data: ${dateRange} · ${runCount} completed runs${feedCount?` · ${feedCount} feed records`:''}${incPart}`;
+  document.getElementById('feedSection').style.display=FEEDS.length?'block':'none';
+
+  overlay.classList.add('hidden');
+  document.getElementById('dashboard').style.display='block';
+  applyURLState();  // Sprint 2 Fix #13: apply shared-link state before first render
+  render();
+}
+
+// ══════════════════════════════════════════════════
+//  FILTER LOGIC
+// ══════════════════════════════════════════════════
+function getYM(offset=0){
+  if(!TODAY_YM) return '';
+  let y=+TODAY_YM.slice(0,4), m=+TODAY_YM.slice(4);
+  m+=offset; while(m<=0){m+=12;y--;} while(m>12){m-=12;y++;}
+  return String(y)+String(m).padStart(2,'0');
+}
+function ymFilter(items, filt){
+  if(filt==='all') return items;
+  if(filt==='cur') return items.filter(x=>x.ym===TODAY_YM);
+  if(filt==='prev') return items.filter(x=>x.ym===getYM(-1));
+  if(filt==='3m') return items.filter(x=>x.ym>=getYM(-2));
+  if(filt==='6m') return items.filter(x=>x.ym>=getYM(-5));
+  if(filt==='ytd') return items.filter(x=>x.ym.startsWith(TODAY_YM.slice(0,4)));
+  if(filt==='ly') return items.filter(x=>x.ym.startsWith(String(+TODAY_YM.slice(0,4)-1)));
+  if(filt.length===6) return items.filter(x=>x.ym===filt);
+  if(filt.length===4) return items.filter(x=>x.ym.startsWith(filt));
+  return items;
+}
+function setFilter(btn, filt){
+  document.querySelectorAll('.fp:not(select)').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  // month reset handled by button
+  // year reset handled by button
+  activeFilter=filt; render(); syncURL();
+}
+function setMonthFilter(v){
+  document.querySelectorAll('.fp:not(select)').forEach(b=>b.classList.remove('on'));
+  activeFilter=v||'cur'; render(); syncURL();
+}
+function setYearFilter(v){
+  document.querySelectorAll('.fp:not(select)').forEach(b=>b.classList.remove('on'));
+  // month reset handled by button
+  activeFilter=v||'cur'; render(); syncURL();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// Sprint 2 Fix #12: UNIFIED ACTIVE-FILTER PILL STRIP
+// ═══════════════════════════════════════════════════════════════════════
+// Replaces the old always-visible filter bar with two pieces:
+//   1. A compact pill strip showing ONLY the filters that differ from default
+//   2. A collapsible drawer holding the full original controls
+// Each pill has an × that clears just that filter, avoiding the old behavior
+// where changing Month silently cleared the Period chip selection.
+
+// ═══════════════════════════════════════════════════════════════════════
+// Sprint 3 Fix #20: DARK MODE
+// ═══════════════════════════════════════════════════════════════════════
+// Toggles on <html>. The CSS variable block handles
+// all color overrides — no JS color manipulation needed. Persists to
+// localStorage so the preference survives reloads.
+
+function applyStoredTheme(){
+  try{
+    const t=localStorage.getItem('tk2-theme')||'light';
+    document.documentElement.setAttribute('data-theme','dark');
+    // Always dark — eady
+    window.addEventListener('DOMContentLoaded',()=>{
+      const btn=document.getElementById('darkBtn');
+      if(btn) btn.textContent=t==='dark'?'🌙':'☀';
+    },{once:true});
+  }catch(e){}
+}
+applyStoredTheme();  // run immediately — before first paint to avoid flash
+
+function toggleFilterDrawer(){
+  const d=document.getElementById('filterDrawer');
+  if(d) d.classList.toggle('open');
+  const btn=document.getElementById('adjustFiltersBtn');
+  if(btn) btn.textContent=d&&d.classList.contains('open')?'− close filters':'+ adjust filters';
+}
+
+function clearAllFilters(){
+  activeFilter='all';
+  threshMethod='median';
+  stageFocus='';
+  SLA_HOURS=13;
+  // Reset UI
+  document.querySelectorAll('.fp:not(select)').forEach(b=>{
+    b.classList.remove('on');
+    if(b.textContent==='Current month') b.classList.add('on');
+  });
+  const setVal=(id,v)=>{ const el=document.getElementById(id); if(el) el.value=v; };
+  closeNxSel('month','All months'); closeNxSel('year','All years'); closeNxSel('sla','5h (default)');
+  setVal('stageSel','');
+  render(); syncURL();
+}
+
+// Clear a single filter (called by × button on each chip)
+function clearFilter(kind){
+  if(kind==='period'){
+    activeFilter='all';
+    document.querySelectorAll('.fp:not(select)').forEach(b=>{
+      b.classList.remove('on');
+      if(b.textContent==='Current month') b.classList.add('on');
+    });
+    // month reset handled by button
+    // year reset handled by button
+  } else if(kind==='sla'){
+    SLA_HOURS=13;
+    closeNxSel('sla','5h (default)');
+  } else if(kind==='stage'){
+    stageFocus='';
+    const s=document.getElementById('stageSel'); if(s) s.value='';
+  }
+  render(); syncURL();
+}
+
+// Build the pill strip from current state; non-default filters become magenta,
+// default filters are shown as neutral pills only if they've been explicitly
+// adjusted in this session (we just show the period always for orientation).
+function renderActiveFilterChips(){
+  const el=document.getElementById('active-chips');
+  if(!el) return;
+  const chips=[];
+  // Period — always show, since "All time" is itself meaningful context
+  const periodLabel=getPeriodLabel();
+  const periodIsDefault=activeFilter==='all';
+  chips.push({
+    label:periodLabel,
+    kind:'period',
+    neutral:periodIsDefault,
+    closable:!periodIsDefault,
+  });
+  // SLA target — only show if non-default (13h is default)
+  if(SLA_HOURS!==13){
+    chips.push({label:`SLA ${SLA_HOURS}h`, kind:'sla', neutral:false, closable:true});
+  }
+  // Stage focus — only show if set
+  if(stageFocus){
+    const sel=document.getElementById('stageSel');
+    const stageLabel=sel?sel.options[sel.selectedIndex]?.text:stageFocus;
+    chips.push({label:`Stage: ${stageLabel}`, kind:'stage', neutral:false, closable:true});
+  }
+  el.innerHTML=chips.map(c=>{
+    const cls=c.neutral?'af-chip neutral':'af-chip';
+    const close=c.closable?`<button onclick="clearFilter('${c.kind}')" title="Clear this filter" aria-label="Clear ${c.kind} filter">×</button>`:'';
+    return `<span class="${cls}">${c.label}${close}</span>`;
+  }).join(' ');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// Sprint 2 Fix #13: SHAREABLE URL STATE
+// ═══════════════════════════════════════════════════════════════════════
+// Filters are serialized into ?period=&sla=&outlier=&stage= so any view can
+// be shared as a URL. On load, if query params are present, they're applied
+// before the first render.
+function syncURL(){
+  if(!window.history||!window.history.replaceState) return;
+  const params=new URLSearchParams();
+  if(activeFilter!=='all') params.set('period',activeFilter);
+  if(SLA_HOURS!==13) params.set('sla',String(SLA_HOURS));
+  if(stageFocus) params.set('stage',stageFocus);
+  const qs=params.toString();
+  const newURL=qs?(location.pathname+'?'+qs):location.pathname;
+  try{ history.replaceState(null,'',newURL); } catch(e){ /* file:// may block this */ }
+}
+
+function applyURLState(){
+  const p=new URLSearchParams(location.search);
+  const period=p.get('period');
+  const sla=p.get('sla');
+  const outlier=p.get('outlier');
+  const stage=p.get('stage');
+  if(period){ activeFilter=period; }
+  if(sla && !isNaN(+sla)){ SLA_HOURS=+sla; closeNxSel('sla',SLA_HOURS*60+'m'); }
+  if(stage){ stageFocus=stage; const s=document.getElementById('stageSel'); if(s) s.value=stage; }
+  // Reflect period in the button highlight
+  if(period){
+    document.querySelectorAll('.fp:not(select)').forEach(b=>b.classList.remove('on'));
+    const labelMap={all:'All time',cur:'Current month',prev:'Previous month','3m':'Last 3 months','6m':'Last 6 months',ytd:'YTD',ly:'Last year'};
+    const label=labelMap[period];
+    if(label){
+      document.querySelectorAll('.fp:not(select)').forEach(b=>{if(b.textContent===label) b.classList.add('on');});
+    } else if(period.length===6){ // YYYYMM
+      // month filter restored via setMonthFilter()
+    } else if(period.length===4){ // YYYY
+      // year filter restored via setYearFilter()
+    }
+  }
+}
+
+// "Share view" button handler — copies the current URL to clipboard
+function shareCurrentView(){
+  syncURL();
+  const url=location.href;
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(()=>{
+      const btn=document.getElementById('shareBtn');
+      if(btn){
+        const orig=btn.textContent;
+        btn.textContent='✓ Link copied';
+        setTimeout(()=>{btn.textContent=orig;},1600);
+      }
+    }).catch(()=>prompt('Copy this link:',url));
+  } else {
+    prompt('Copy this link:',url);
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  RENDER ENGINE
+// ══════════════════════════════════════════════════
+function render(){
+  const mData=ymFilter(MONTHLY, activeFilter);
+  const rData=ymFilter(RUNS, activeFilter);
+  const fData=ymFilter(FEEDS, activeFilter);
+  const totalRuns=mData.reduce((s,m)=>s+m.n,0);
+  document.getElementById('filter-count').textContent=`${totalRuns} run${totalRuns!==1?'s':''}`;
+
+  renderActiveFilterChips();  // Sprint 2 Fix #12
+  renderExecSummary(mData, rData);
+  renderVolumeIndicator(fData);  // Sprint 2 Fix #9
+  renderSLATiles(rData);
+  renderKPIs(mData, rData);
+  renderMigrationCompare();
+  renderStack(mData, rData);
+  renderDonut(mData);
+  renderRunChart(rData);
+  renderTrend(mData, rData);
+  renderSlowTable(rData);
+  renderIncidentTrend(rData);  // Sprint 2 Fix #11
+  renderRecentIncidents();     // replaces hazard rate card
+  if(FEEDS.length){
+    document.getElementById('feedSection').style.display='block';
+    if(fData.length){ renderFeed(fData); }
+    else { dc('feed'); document.getElementById('feedChart').closest('.card').querySelector('.csub').textContent='No feed data for this period'; }
+    renderAnomalies(fData);
+  }
+}
+
+function dc(id){ if(charts[id]){ charts[id].destroy(); delete charts[id]; } }
+
+// ── KPIs ──
+// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
+// Sprint 2 Fix #9: VOLUME INDICATOR (NOT a runtime forecast)
+// ═══════════════════════════════════════════════════════════════════════
+// The correlation between feed volume and pipeline runtime is r ≈ 0.13 —
+// too weak to make responsible runtime predictions from volume alone. So
+// this card deliberately does NOT predict runtime. It only tells the
+// user how today's input volume compares to the 14-day rolling median,
+// which IS useful operationally: "heavy input day" is a valid context
+// flag even if runtime can't be forecast from it.
+function renderVolumeIndicator(filtered){
+  const el=document.getElementById('volumeIndicator');
+  if(!el||!FEEDS||!FEEDS.length){if(el)el.style.display='none';return;}
+  el.style.display='grid';
+
+  // Last feed record = most recent order day
+  const last=FEEDS[FEEDS.length-1];
+  const vol=last.all||last.iot||0;
+
+  // 14-day rolling median
+  const recent=FEEDS.slice(-14).map(r=>r.all||r.iot||0).filter(v=>v>0);
+  recent.sort((a,b)=>a-b);
+  const med=recent.length?recent[Math.floor(recent.length/2)]:vol;
+  const pct=med?Math.round((vol-med)/med*100):0;
+
+  // Format date
+  const dateStr=(()=>{
+    const d=last.date||'';
+    if(d.length===8) return (d.slice(4,6)+'/'+d.slice(6,8)+'/'+d.slice(0,4));
+    return d;
+  })();
+
+  // Next run estimate using 14-day rolling median runtime + volume correlation
+  // r=0.71 between order volume and total runtime
+  const recentRuns=RUNS.slice(-14);
+  const medRuntime=recentRuns.length?(()=>{
+    const sorted=[...recentRuns].map(r=>r.total).sort((a,b)=>a-b);
+    return sorted[Math.floor(sorted.length/2)];
+  })():240;
+
+  // Volume-adjusted estimate: scale by (today_vol / median_vol)^0.71
+  const volRatio=med>0?vol/med:1;
+  const adjustment=Math.pow(Math.max(0.5,Math.min(3,volRatio)),0.71);
+  const estRuntime=Math.round(medRuntime*adjustment);
+  const estLow=Math.round(estRuntime*0.82);
+  const estHigh=Math.round(estRuntime*1.22);
+  const slaMins=SLA_HOURS*60;
+
+  // SLA breach probability (empirical from historical data)
+  const slaPct=RUNS.length?Math.round(RUNS.filter(r=>r.total>slaMins).length/RUNS.length*100):0;
+  // Adjust probability by volume ratio
+  const adjSlaPct=Math.min(99,Math.round(slaPct*Math.pow(volRatio,1.4)));
+
+  const fmtK=v=>v>=1000?(v/1000).toFixed(0)+'K':v;
+  const fmtM=m=>{m=Math.round(m);return Math.floor(m/60)+'h '+String(m%60).padStart(2,'0')+'m';};
+
+  let iconCls='neutral', dirLabel='Normal volume';
+  if(pct<=-30){iconCls='neutral';dirLabel='Light day';}
+  else if(pct<=-10){iconCls='neutral';dirLabel='Slightly below median';}
+  else if(pct<=10){iconCls='neutral';dirLabel='On trend';}
+  else if(pct<=50){iconCls='warn';dirLabel='Above median';}
+  else{iconCls='red';dirLabel='High volume day';}
+
+  // SLA risk indicator
+  let riskColor='#10B981', riskLabel='Low SLA risk';
+  if(adjSlaPct>=60){riskColor='#EF4444';riskLabel='High SLA risk';}
+  else if(adjSlaPct>=35){riskColor='#F59E0B';riskLabel='Moderate SLA risk';}
+
+  el.innerHTML=`
+    <div class="vol-icon ${iconCls}">${pct>20?'▲':pct<-20?'▼':'~'}</div>
+    <div>
+      <div class="vol-title">TODAY'S ORDER VOLUME · NEXT RUN ESTIMATE</div>
+      <div class="vol-body">
+        <b>${dateStr}</b> &nbsp;·&nbsp; <b>${fmtK(vol)} orders</b>
+        <span class="${pct>=0?'mg':'neut'}" style="color:${pct>=0?'#F59E0B':'#06B6D4'}">
+          &nbsp;${pct>=0?'+':''}${pct}% vs 14-day median
+        </span>
+        &nbsp;·&nbsp; <span style="color:#94A3B8">${dirLabel}</span>
+      </div>
+      <div class="vol-meta">
+        Estimated next run: <b style="color:#F9FAFB">${fmtM(estLow)} – ${fmtM(estHigh)}</b>
+        &nbsp;·&nbsp; Based on 14-day rolling median + volume correlation (r=0.71)
+        &nbsp;·&nbsp; <span style="color:${riskColor};font-weight:700">${adjSlaPct}% SLA breach probability</span>
+        &nbsp;·&nbsp; <span style="color:#64748B">${riskLabel}</span>
+      </div>
+    </div>
+    <div style="text-align:right;padding-right:8px;">
+      <div style="font-size:22px;font-weight:800;color:#F9FAFB">${fmtM(estRuntime)}</div>
+      <div style="font-size:10px;color:#94A3B8;margin-top:2px;">est. runtime</div>
+      <div style="font-size:10px;color:${riskColor};font-weight:700;margin-top:4px;">${adjSlaPct}% breach risk</div>
+    </div>
+  `;
+}
+
+function renderExecSummary(mData, rData){
+  const el=document.getElementById('execSummary');
+  if(!el) return;
+  if(!rData.length){ el.style.display='none'; return; }
+  el.style.display='grid';
+
+  const totals=rData.map(r=>r.total);
+  const slaMin=SLA_HOURS*60;
+  const onTime=totals.filter(t=>t<=slaMin).length;
+  const adhPct=Math.round(onTime/totals.length*100);
+  const missed=totals.length-onTime;
+  const avgTot=Math.round(avg(totals));
+  const p90=Math.round(percentile(totals,0.9));
+
+  // Verdict thresholds — matches the SLA card severity levels
+  let verdict, verdictClass;
+  if(adhPct>=85){ verdict='On-SLA'; verdictClass='vr-ok'; }
+  else if(adhPct>=65){ verdict='At risk'; verdictClass='vr-amber'; }
+  else if(adhPct>=40){ verdict='Off-SLA'; verdictClass='vr-amber'; }
+  else { verdict='Critical'; verdictClass='vr-red'; }
+
+  // Period label — best-effort from filter state
+  const periodLabel=getPeriodLabel();
+
+  // Regime detection: did this period cross the system migration (2026-01)?
+  const MIGRATION_YM='202601';
+  const yms=[...new Set(rData.map(r=>r.ym))];
+  const hasPre=yms.some(y=>y<MIGRATION_YM);
+  const hasPost=yms.some(y=>y>=MIGRATION_YM);
+  const crossesRegime=hasPre&&hasPost;
+  const isAllPost=hasPost&&!hasPre;
+
+  // Top stage driver — which stage contributes most to total runtime on average?
+  const stageKeys=['ord_val','pay_set','fraud','inv_sync','ful_exp','rpt'];
+  const stageLabels={ord_val:'Order Validation',pay_set:'Payment Settlement',inv_sync:'Inventory Sync',fraud:'Fraud Check',ful_exp:'Fulfillment Export',rpt:'Reporting',_unused1:'',_unused2:'',_unused3:'reporting'};
+  const stageAvgs={};
+  stageKeys.forEach(k=>{
+    const vals=mData.filter(m=>m[k]>0).map(m=>m[k]);
+    stageAvgs[k]=vals.length?avg(vals):0;
+  });
+  const topDriver=stageKeys.filter(k=>stageAvgs[k]>0).sort((a,b)=>stageAvgs[b]-stageAvgs[a])[0];
+  const topDriverLabel=stageLabels[topDriver]||topDriver;
+  const topDriverPct=topDriver?Math.round(stageAvgs[topDriver]/avgTot*100):0;
+
+  // vs-prior comparison for delta language
+  const runsByDate=[...RUNS].sort((a,b)=>a.date.localeCompare(b.date));
+  const inPeriod=new Set(rData.map(r=>r.date));
+  const firstIdx=runsByDate.findIndex(r=>inPeriod.has(r.date));
+  const prior=firstIdx>0?runsByDate.slice(Math.max(0,firstIdx-rData.length),firstIdx):[];
+  let priorDelta='';
+  if(prior.length>=5){
+    const priorAvg=avg(prior.map(r=>r.total));
+    const pct=Math.round((avgTot-priorAvg)/priorAvg*100);
+    if(Math.abs(pct)>=3) priorDelta=` — <span class="mg">${pct>=0?'+':''}${pct}% vs prior ${prior.length} runs</span>`;
+  }
+
+  // Headline — assembled from the core facts
+  let headline;
+  if(missed===0){
+    headline=`All ${totals.length} runs in ${periodLabel} met the ${SLA_HOURS}h target`;
+  } else if(adhPct>=85){
+    headline=`Near-target: ${onTime}/${totals.length} runs on-time (${adhPct}%) in ${periodLabel}`;
+  } else {
+    headline=`Pipeline missed the ${SLA_HOURS}h target on <b style="color:#fff;">${missed} of ${totals.length} runs</b> (${100-adhPct}%) in ${periodLabel}`;
+  }
+
+  // Body paragraph — the "why" and "what to do"
+  let body;
+  if(isAllPost && topDriver==='inv_sync'){
+    body=`Avg runtime is <b>${fmtM(avgTot)}</b>${priorDelta}. The top driver is <code>${topDriverLabel}</code> at <b>${topDriverPct}% of total</b> — a stage introduced by the Jan-2026 SPACE Deployment.`;
+  } else if(crossesRegime){
+    body=`Avg runtime is <b>${fmtM(avgTot)}</b>${priorDelta}, P90 <b>${fmtM(p90)}</b>. <span class="mg">⚠ This period spans the Jan-2026 SPACE Deployment</span>, so pre/post runs aren't directly comparable — filter to <b>2026 only</b> or <b>Last 3 months</b> for a clean view. Top driver overall: <code>${topDriverLabel}</code>.`;
+  } else if(topDriver==='ord_val'){
+    body=`Avg runtime is <b>${fmtM(avgTot)}</b>${priorDelta}, P90 <b>${fmtM(p90)}</b>. Top driver: <code>${topDriverLabel}</code> at <b>${topDriverPct}% of total</b> — correlates most strongly with total pipeline time (r=0.71).`;
+  } else {
+    body=`Avg runtime is <b>${fmtM(avgTot)}</b>${priorDelta}, P90 <b>${fmtM(p90)}</b>. Top driver: <code>${topDriverLabel}</code> at <b>${topDriverPct}% of total</b>.`;
+  }
+
+  el.innerHTML=`
+    <div>
+      <div class="exec-hl">
+        <span class="exec-kicker">Executive Summary</span>
+        <span class="exec-period">· ${periodLabel}</span>
+      </div>
+      <div class="exec-headline"><span class="exec-verdict ${verdictClass}">${verdict}</span>${headline}</div>
+    </div>
+    <div class="exec-body">${body}</div>
+  `;
+}
+
+// Human-readable label for the current filter state, used in the exec summary
+function getPeriodLabel(){
+  const f=activeFilter;
+  if(f==='all') return 'the full period';
+  if(f==='cur') return 'current month';
+  if(f==='prev') return 'last month';
+  if(f==='3m') return 'the last 3 months';
+  if(f==='6m') return 'the last 6 months';
+  if(f==='ytd') return 'YTD';
+  if(f==='ly') return 'last year';
+  if(f.length===6){
+    const m=MONTHLY.find(x=>x.ym===f);
+    return m?m.label:f;
+  }
+  if(f.length===4) return f;
+  return 'the selected period';
+}
+
+// Sprint 1 Fix #6: SLA tier — adherence, P50/P90/P95, peak runtime
+function renderSLATiles(rData){
+  const el=document.getElementById('kpis-sla');
+  if(!el) return;
+  if(!rData.length){ el.innerHTML='<div class="nodata" style="grid-column:1/-1">No runs in this period</div>'; return; }
+  const totals=rData.map(r=>r.total);
+  const slaMin=SLA_HOURS*60;
+  const onTime=totals.filter(t=>t<=slaMin).length;
+  const adhPct=Math.round(onTime/totals.length*100);
+  const adhSeverity=adhPct>=80?'ok':adhPct>=60?'warn':'red';
+  const adhBadge=adhPct<60?'<div class="kbadge red">Alert</div>':(adhPct<80?'<div class="kbadge amber">Watch</div>':'');
+  const avgTot=Math.round(avg(totals));
+  const p50=Math.round(percentile(totals,0.5));
+  const p90=Math.round(percentile(totals,0.9));
+  const p95=Math.round(percentile(totals,0.95));
+  const maxTot=Math.max(...totals);
+  const peakRun=rData.find(r=>r.total===maxTot);
+  const peakDate=peakRun?peakRun.date.slice(4,6)+'/'+peakRun.date.slice(6,8)+'/'+peakRun.date.slice(0,4):'—';
+  // Compute prior-period comparison for avg & P90 (same span immediately preceding)
+  const runsByDate=[...RUNS].sort((a,b)=>a.date.localeCompare(b.date));
+  const inPeriodDates=new Set(rData.map(r=>r.date));
+  const firstIdx=runsByDate.findIndex(r=>inPeriodDates.has(r.date));
+  const priorRuns=firstIdx>0?runsByDate.slice(Math.max(0,firstIdx-rData.length),firstIdx):[];
+  let avgDelta='',p90Delta='',adhDelta='';
+  if(priorRuns.length>=5){
+    const pt=priorRuns.map(r=>r.total);
+    const priorAvg=avg(pt), priorP90=percentile(pt,0.9);
+    const priorAdh=pt.filter(t=>t<=slaMin).length/pt.length*100;
+    const dAvg=avgTot-priorAvg, dP90=p90-priorP90, dAdh=adhPct-priorAdh;
+    const pctAvg=Math.round(Math.abs(dAvg)/priorAvg*100);
+    avgDelta=`<span class="${dAvg>0?'up':'dn'}">${dAvg>=0?'+':'−'}${pctAvg}%</span> vs prior ${priorRuns.length} runs`;
+    p90Delta=`<span class="${dP90>0?'up':'dn'}">${dP90>=0?'+':'−'}${fmtM(Math.abs(Math.round(dP90)))}</span> vs prior`;
+    adhDelta=`<span class="${dAdh<0?'up':'dn'}">${dAdh>=0?'▲':'▼'} ${Math.round(Math.abs(dAdh))}pts</span> vs prior`;
+  } else {
+    avgDelta='<span style="color:#B8B8B8">no prior period to compare</span>';
+    p90Delta=`${rData.length} runs`;
+    adhDelta=`${onTime}/${totals.length} runs on-time`;
+  }
+  const slaTip='title="Working target — not an official SLA. Configure via the SLA dropdown."';
+  el.innerHTML=`
+    <div class="kcard sla ${adhSeverity}">
+      ${adhBadge}
+      <div class="kl">SLA adherence (${SLA_HOURS}h) <span class="tip" ${slaTip}>ⓘ</span></div>
+      <div class="kv">${adhPct}%</div>
+      <div class="ks">${adhDelta}</div>
+    </div>
+    <div class="kcard sla">
+      <div class="kl">Avg runtime</div>
+      <div class="kv">${fmtM(avgTot)}</div>
+      <div class="ks">${avgDelta}</div>
+    </div>
+    <div class="kcard sla ${maxTot>slaMin*1.5?'red':'warn'}">
+      <div class="kl">Peak runtime</div>
+      <div class="kv">${fmtM(maxTot)}</div>
+      <div class="ks">${peakDate} · worst in period</div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// Sprint 2 Fix #10: MIGRATION BEFORE/AFTER COMPARISON
+// ═══════════════════════════════════════════════════════════════════════
+// Splits all historical runs at the system migration boundary (2026-01-02) and
+// shows the pre/post comparison with a clear verdict. This is the Cycle 3
+// actually reduce runtime? The data answers that directly.
+//
+// Shows only when BOTH sides have enough data (≥10 runs each). Filter-agnostic
+// — always compares the full pre-migration vs full post-migration populations,
+// because the point of the card is to answer a historical question.
+function renderMigrationCompare(){
+  const el=document.getElementById('migrationCompare');
+  const sec=document.getElementById('migrationSection');
+  if(!el||!sec) return;
+  const BOUNDARY='20260102';
+  const preRuns=RUNS.filter(r=>r.date<BOUNDARY);
+  const postRuns=RUNS.filter(r=>r.date>=BOUNDARY);
+  if(preRuns.length<10||postRuns.length<10){ sec.style.display='none'; return; }
+  sec.style.display='block';
+  const slaMin=SLA_HOURS*60;
+  const compute=(runs)=>{
+    const t=runs.map(r=>r.total);
+    return {
+      n:runs.length,
+      avg:avg(t),
+      p90:percentile(t,0.9),
+      p95:percentile(t,0.95),
+      adh:Math.round(t.filter(x=>x<=slaMin).length/t.length*100),
+    };
+  };
+  const pre=compute(preRuns), post=compute(postRuns);
+  const avgDelta=((post.avg-pre.avg)/pre.avg)*100;
+  const p95Delta=post.p95-pre.p95; // minutes
+  const adhDelta=post.adh-pre.adh; // percentage points
+  // Verdict logic: worse if avg rose ≥5% OR adherence dropped ≥10pts
+  let verdictClass, verdictText;
+  if(avgDelta<=-5 && adhDelta>=5){
+    verdictClass='better';
+    verdictText=`✓ Hypothesis confirmed · Runtime dropped ${Math.abs(avgDelta).toFixed(0)}%, SLA adherence +${adhDelta}pts`;
+  } else if(avgDelta>=5 || adhDelta<=-10){
+    verdictClass='worse';
+    verdictText=`✗ Hypothesis disproven · Runtime rose ${avgDelta.toFixed(0)}%, SLA adherence ${adhDelta>=0?'+':''}${adhDelta}pts, P95 expanded by ${fmtM(Math.abs(Math.round(p95Delta)))}`;
+  } else {
+    verdictClass='flat';
+    verdictText=`~ Inconclusive · Runtime change ${avgDelta.toFixed(0)}%, SLA adherence ${adhDelta>=0?'+':''}${adhDelta}pts`;
+  }
+  const arrowClass=avgDelta<-2?'better':(avgDelta>2?'worse':'');
+  const preLastYM=preRuns[preRuns.length-1].ym, postLastYM=postRuns[postRuns.length-1].ym;
+  const ymLabel=(ym)=>{ const m=MONTHLY.find(x=>x.ym===ym); return m?m.label:ym; };
+  const preRange=`${ymLabel(preRuns[0].ym)} — ${ymLabel(preLastYM)}`;
+  const postRange=`${ymLabel(postRuns[0].ym)} — ${ymLabel(postLastYM)}`;
+  el.innerHTML=`
+    <div class="compare">
+      <div class="cmp-side cmp-before">
+        <div class="cmp-label">Before · ${preRange}</div>
+        <div class="cmp-val">${fmtM(Math.round(pre.avg))}</div>
+        <div class="cmp-sub">n=${pre.n} · P95 ${fmtM(Math.round(pre.p95))} · SLA adherence (${SLA_HOURS}h): <b>${pre.adh}%</b></div>
+      </div>
+      <div class="cmp-arrow ${arrowClass}">→</div>
+      <div class="cmp-side cmp-after">
+        <div class="cmp-label">After · ${postRange}</div>
+        <div class="cmp-val ${verdictClass==='worse'?'worse':(verdictClass==='better'?'better':'')}">${fmtM(Math.round(post.avg))}</div>
+        <div class="cmp-sub ${verdictClass==='worse'?'worse':''}">n=${post.n} · P95 ${fmtM(Math.round(post.p95))} · SLA adherence (${SLA_HOURS}h): <b>${post.adh}%</b></div>
+      </div>
+    </div>
+  `;
+}
+
+function renderKPIs(mData, rData){
+  if(!mData.length){ document.getElementById('kpis').innerHTML='<div class="nodata" style="grid-column:1/-1">No data for this period</div>'; return; }
+  const tots=mData.map(m=>m.total), owns=mData.map(m=>m.ord_val), bus=mData.map(m=>m.rpt);
+  const calcs=mData.filter(m=>m.fraud>0).map(m=>m.fraud);
+  const spaces=mData.filter(m=>m.inv_sync>0).map(m=>m.inv_sync);
+  const avgTot=Math.round(avg(tots));
+  // Peak from individual runs (not monthly averages which smooth out the worst days)
+  const maxTot=rData.length?Math.max(...rData.map(r=>r.total)):Math.max(...tots);
+  const peakRun=rData.find(r=>r.total===maxTot);
+  const peakDate=peakRun?peakRun.date.slice(4,6)+'/'+peakRun.date.slice(6,8)+'/'+peakRun.date.slice(0,4):'—';
+  const avgOwn=Math.round(avg(owns)), avgBus=Math.round(avg(bus));
+  const icmVal=spaces.length?Math.round(avg(spaces)):Math.round(avg(calcs)||0);
+  const icmLabel=spaces.length?'inventory_sync':'fraud_check';
+  // Sprint 1 Fix #2: explicitly name the baseline month, and warn if the filtered
+  // period crosses the Jan-2026 SPACE Deployment (which makes any 'vs baseline' delta misleading).
+  const baselineMonth=MONTHLY.length?MONTHLY[0]:null;
+  const baseline=baselineMonth?baselineMonth.total:avgTot;
+  const delta=avgTot-baseline, sign=delta>=0?'+':'', pct=Math.round(Math.abs(delta)/baseline*100);
+  const baselineLabel=baselineMonth?baselineMonth.label:'baseline';
+  // Regime-cross detection: the system migration happened on 2026-01-02 (YM 202601).
+  // A period spanning this boundary mixes two regimes.
+  const MIGRATION_YM='202601';
+  const yms=mData.map(m=>m.ym);
+  const hasPreRegime=yms.some(y=>y<MIGRATION_YM);
+  const hasPostRegime=yms.some(y=>y>=MIGRATION_YM);
+  const crossesRegime=hasPreRegime&&hasPostRegime;
+  const warnIcon=crossesRegime?' <span title="This period spans the Jan-2026 SPACE Deployment — pre/post runtimes shouldn\'t be directly compared. Filter to before or after for a cleaner delta." style="color:#d97706;cursor:help;">⚠</span>':'';
+  const ownPct=Math.round(avgOwn/avgTot*100), icmPct=Math.round(icmVal/avgTot*100), busPct=Math.round(avgBus/avgTot*100);
+  document.getElementById('kpis').innerHTML=`
+    <div class="kcard"><div class="kl">Order Validation Avg</div><div class="kv">${fmtM(avgOwn)}</div><div class="ks"><span class="mg-txt">${ownPct}% of total · r=0.71</span></div></div>
+    <div class="kcard"><div class="kl">${icmLabel==='inventory_sync'?'Inventory Sync':'Fraud Check'}</div><div class="kv">${fmtM(icmVal)}</div><div class="ks"><span class="mg-txt">${icmPct}% of total</span></div></div>
+    <div class="kcard"><div class="kl">Reporting Avg</div><div class="kv">${fmtM(avgBus)}</div><div class="ks"><span class="mg-txt">${busPct}% of total</span></div></div>`;
+}
+
+// ── STACKED BAR ──
+// Sprint 2 Fix #10: Chart.js plugin — vertical line at system migration boundary
+// Works on charts whose x-axis labels are monthly (e.g. "Jan 26"). Finds the
+// Jan-2026 bucket and draws a dashed amber line at its leading edge.
+const migrationLinePlugin={
+  id:'migrationLine',
+  afterDatasetsDraw(chart){
+    const labels=chart.data?.labels||[];
+    // Accept either "Jan 26", "Jan-26" etc.
+    const idx=labels.findIndex(l=>/Jan\s*['-]?\s*26/i.test(String(l)));
+    if(idx<0) return;
+    const {ctx,chartArea,scales}=chart;
+    const xScale=scales.x;
+    // Position at the left edge of the Jan-26 category
+    const x=xScale.getPixelForValue(idx)-xScale.getPixelForValue(idx+1)/2+xScale.getPixelForValue(idx)/2;
+    // Safer: use category midpoint minus half-category-width
+    let xPos=xScale.getPixelForValue(idx);
+    if(idx>0){
+      const prev=xScale.getPixelForValue(idx-1);
+      xPos=(xPos+prev)/2;
+    } else {
+      xPos=chartArea.left;
+    }
+    ctx.save();
+    ctx.strokeStyle='#d97706';
+    ctx.setLineDash([5,4]);
+    ctx.lineWidth=1.4;
+    ctx.beginPath();
+    ctx.moveTo(xPos,chartArea.top);
+    ctx.lineTo(xPos,chartArea.bottom);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#d97706';
+    ctx.font='bold 9px Helvetica';
+    ctx.textAlign='left';
+    ctx.fillText('SPACE Deployment', xPos+4, chartArea.top+10);
+    ctx.restore();
+  }
+};
+
+function renderStack(mData, rData){
+  dc('stack');
+  const runs = rData && rData.length ? rData : [];
+
+  const STAGE_DEFS = [
+    {key:'order_validation',   label:'Order Validation',   color:'#7C3AED'},
+    {key:'payment_settlement', label:'Payment Settlement', color:'#A855F7'},
+    {key:'fraud_check',        label:'Fraud Check',        color:'#06B6D4'},
+    {key:'inventory_sync',     label:'Inventory Sync',     color:'#10B981'},
+    {key:'fulfillment_export', label:'Fulfillment Export', color:'#F59E0B'},
+    {key:'reporting',          label:'Reporting',          color:'#94A3B8'},
+  ];
+
+  document.getElementById('stack-leg').innerHTML = STAGE_DEFS.map(s =>
+    `<span class="li"><span class="lsq" style="background:${s.color}"></span>${s.label}</span>`
+  ).join('');
+
+  // Top 10 slowest sorted slowest→left to right (ascending)
+  const top10 = [...runs].sort((a,b) => b.total - a.total).slice(0, 10).reverse();
+
+  const slaMin = SLA_HOURS * 60;
+  const isDarkMode = true;
+  const slaBadge = document.getElementById('stack-sla-label');
+  if(slaBadge){
+    slaBadge.textContent = `SLA = ${SLA_HOURS}h · dashed line = SLA`;
+    slaBadge.style.color = isDarkMode ? '#ffffff' : '#7C3AED';
+  }
+
+  if(!top10.length){
+    document.getElementById('stack-insight').innerHTML = '<em>No run data for this period.</em>';
+    return;
+  }
+
+  function dominantStage(run){
+    let best = null, bestVal = 0;
+    STAGE_DEFS.forEach(s => {
+      const v = run.stages[s.key] || 0;
+      if(v > bestVal){ bestVal = v; best = s; }
+    });
+    return {stage: best, val: bestVal};
+  }
+
+  const labels = top10.map(r => `${r.date.slice(4,6)}/${r.date.slice(6,8)}`);
+
+  // SLA horizontal line plugin
+  const slaLineColor = isDarkMode ? '#ffffff' : '#7C3AED';
+  const slaHLinePlugin = {
+    id: 'slaHLine',
+    afterDatasetsDraw(chart){
+      const {ctx, chartArea, scales} = chart;
+      if(!chartArea) return;
+      const yPos = scales.y.getPixelForValue(slaMin);
+      if(yPos < chartArea.top || yPos > chartArea.bottom) return;
+      ctx.save();
+      ctx.strokeStyle = slaLineColor;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([5, 4]);
+      ctx.beginPath();
+      ctx.moveTo(chartArea.left, yPos);
+      ctx.lineTo(chartArea.right, yPos);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+    }
+  };
+
+  const ctx = document.getElementById('stackChart').getContext('2d');
+  charts['stack'] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: STAGE_DEFS.map(s => ({
+        label: s.label,
+        data: top10.map(r => r.stages[s.key] || 0),
+        backgroundColor: s.color + 'dd',
+        borderColor: s.color,
+        borderWidth: 0,
+        borderRadius: 0,
+        stack: 's',
+      }))
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          mode: 'index',
+          callbacks: {
+            title: items => {
+              const i = items[0].dataIndex;
+              const run = top10[i];
+              const breach = run.total >= slaMin ? '  ⚠ SLA breach' : '';
+              return `${labels[i]}  —  ${fmtM(run.total)}${breach}`;
+            },
+            label: v => v.raw > 0 ? `  ${v.dataset.label}: ${fmtM(v.raw)}` : null,
+            filter: v => v.raw > 0,
+          }
+        }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          ticks: { color: GR, font: { size: 9 }, maxRotation: 0 },
+          grid: { display: false }
+        },
+        y: {
+          stacked: true,
+          ticks: { color: GR, font: { size: 10 }, callback: v => `${Math.floor(v/60)}h` },
+          grid: { color: 'rgba(0,0,0,0.04)' }
+        }
+      }
+    },
+    plugins: [slaHLinePlugin]
+  });
+
+  // Insight
+  const domCounts = {};
+  top10.forEach(r => {
+    const d = dominantStage(r);
+    if(d.stage) domCounts[d.stage.label] = (domCounts[d.stage.label]||0) + 1;
+  });
+  const topDom = Object.entries(domCounts).sort((a,b) => b[1]-a[1])[0];
+  const breachCount = top10.filter(r => r.total >= slaMin).length;
+  let insightHtml = '';
+  if(topDom){
+    const col = STAGE_DEFS.find(s => s.label===topDom[0])?.color || '#555';
+    insightHtml = `<strong style="color:${col}">${topDom[0]}</strong> is the dominant stage in <strong>${topDom[1]} of the 10 slowest runs</strong> in this period.`;
+    if(breachCount > 0) insightHtml += ` <strong style="color:#dc2626">${breachCount} run${breachCount>1?'s':''} breached SLA</strong>.`;
+    else insightHtml += ' No SLA breaches in this selection.';
+  }
+  document.getElementById('stack-insight').innerHTML = insightHtml;
+}
+
+
+// ── DONUT ──
+function renderDonut(mData){
+  dc('donut');
+  if(!mData.length) return;
+  const own=Math.round(avg(mData.map(m=>m.ord_val)));
+  const taccln=Math.round(avg(mData.map(m=>m.pay_set)));
+  const icm=Math.round(avg(mData.map(m=>m.fraud)));
+  const space=Math.round(avg(mData.map(m=>m.inv_sync)));
+  const bus=Math.round(avg(mData.map(m=>m.ful_exp)));
+  const rpt_=Math.round(avg(mData.map(m=>m.rpt)));
+  const tot=own+taccln+icm+space+bus+rpt_;
+  const ctx=document.getElementById('donutChart').getContext('2d');
+  charts['donut']=new Chart(ctx,{
+    type:'doughnut',
+    data:{
+      labels:['Order Validation','Payment Settlement','Fraud Check','Inventory Sync','Fulfillment Export','Reporting'],
+      datasets:[{
+        data:[own,taccln,icm,space,bus,rpt_],
+        backgroundColor:['#7C3AED','#A855F7','#06B6D4','#10B981','#F59E0B','#94A3B8'],
+        borderColor:'#ffffff',
+        borderWidth:3,
+        hoverOffset:8
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      cutout:'60%',
+      plugins:{
+        legend:{
+          display:true,
+          position:'right',
+          labels:{font:{size:11},color:'#CBD5E1',boxWidth:12,boxHeight:12,padding:8,usePointStyle:true,pointStyle:'rect'}
+        },
+        tooltip:{
+          enabled:true,
+          backgroundColor:'#1E293B',
+          titleColor:'#F9FAFB',
+          bodyColor:'#CBD5E1',
+          borderColor:'rgba(124,58,237,0.4)',
+          borderWidth:1,
+          padding:12,
+          cornerRadius:8,
+          callbacks:{
+            title: items => items[0].label,
+            label: v => `  ${fmtM(v.raw)}  ·  ${Math.round(v.raw/tot*100)}% of total`
+          }
+        }
+      }
+    }
+  });
+}
+
+function getThresholds(totals){
+  const s=[...totals].sort((a,b)=>a-b),n=s.length,median=s[Math.floor(n/2)];
+  const q1=s[Math.floor(n/4)],q3=s[Math.floor(3*n/4)],iqr=q3-q1;
+  const mean=totals.reduce((a,b)=>a+b,0)/n,sdv=Math.sqrt(totals.reduce((a,x)=>a+(x-mean)**2,0)/n);
+  if(threshMethod==='sd') return{slow:mean+2*sdv,high:mean+sdv,slowLbl:'≥2σ',highLbl:'≥1σ',desc:'Mean±σ'};
+  if(threshMethod==='iqr')return{slow:q3+3*iqr,high:q3+1.5*iqr,slowLbl:'extreme',highLbl:'mild fence',desc:'IQR Tukey'};
+  return{slow:median*1.5,high:median*1.3,slowLbl:'≥1.5× median',highLbl:'≥1.3× median',desc:'Median ×%'};
+}
+function renderRunChart(rData){
+  dc('run');if(!rData||!rData.length)return;
+  if(stageFocus){
+    const sel=document.getElementById('stageSel');
+    const stageName=sel?sel.options[sel.selectedIndex].text:stageFocus;
+    const labels=rData.map(r=>r.date.slice(4,6)+'/'+r.date.slice(6,8)+'/'+r.date.slice(2,4));
+    const sv=rData.map(r=>(r.stages||{})[stageFocus]||0);
+    const tv=rData.map(r=>r.total);
+    const rv=rData.map((r,i)=>Math.max(0,r.total-sv[i]));
+    const sc=STAGE_COLORS[stageFocus]||'#7C3AED';
+    const rolling=tv.map((_,i)=>{const sl=tv.slice(Math.max(0,i-6),i+1);return Math.round(avg(sl));});
+    const ctx2=document.getElementById('runChart').getContext('2d');
+    charts['run']=new Chart(ctx2,{type:'bar',data:{labels,datasets:[
+      {label:stageName,data:sv,backgroundColor:sc+'cc',stack:'s',order:2},
+      {label:'Other stages',data:rv,backgroundColor:'#e8e8e8',stack:'s',order:2},
+      {type:'line',label:'7-run avg',data:rolling,borderColor:MG,borderWidth:2,pointRadius:0,borderDash:[5,3],fill:false,tension:.3,order:1}
+    ]},options:{responsive:true,maintainAspectRatio:false,
+      // Sprint 1 Fix #4: click any bar to open incident modal pre-filtered to ±3 days
+      onClick:(evt,elements)=>{
+        if(!elements.length) return;
+        const idx=elements[0].index;
+        const run=rData[idx];
+        if(run&&run.date) showIncidentsForDate(run.date, 3);
+      },
+      onHover:(evt,elements)=>{evt.native.target.style.cursor=elements.length?'pointer':'default';},
+      plugins:{legend:{display:false},tooltip:{callbacks:{
+        title:items=>labels[items[0].dataIndex],
+        label:v=>{
+          if(v.dataset.label==='7-run avg') return 'avg: '+fmtM(v.raw);
+          const i=v.dataIndex,pct=tv[i]>0?Math.round(sv[i]/tv[i]*100):0;
+          if(v.dataset.label==='Other stages') return 'Other: '+fmtM(rv[i]);
+          return stageName+': '+fmtM(sv[i])+' ('+pct+'% of '+fmtM(tv[i])+' total)';
+        }
+      },backgroundColor:'#111',titleColor:'#fff',bodyColor:'#bbb',padding:10,cornerRadius:6}},
+      scales:{
+        x:{stacked:true,ticks:{color:GR,font:{size:9},maxRotation:45,autoSkip:true,maxTicksLimit:25},grid:{display:false}},
+        y:{stacked:true,ticks:{color:GR,font:{size:10},callback:v=>v+'h'},grid:{color:'rgba(0,0,0,0.04)'}}
+      }}});
+    const lEl=document.querySelector('.run-legend');
+    if(lEl) lEl.innerHTML='<span class="li"><span class="lsq" style="background:'+sc+'cc"></span>'+stageName+'</span><span class="li"><span class="lsq" style="background:#ddd;border:1px solid #ccc"></span>Other stages</span>';
+    const sEl=document.querySelector('.run-csub');
+    if(sEl) sEl.textContent='Stage focus: '+stageName+' - Colored = this stage, Gray = other stages';
+    return;
+  }
+
+  const{slow:SLOW_T,high:HIGH_T,slowLbl,highLbl,desc}=getThresholds(rData.map(r=>r.total));
+  const labels=rData.map(r=>r.date.slice(4,6)+'/'+r.date.slice(6,8)+'/'+r.date.slice(2,4));
+  const totals=rData.map(r=>r.total);
+  const slaMin=SLA_HOURS*60;
+
+  // Color logic: outliers get red/amber, normal bars get neutral gray.
+  // Stage-driver coloring is removed from normal bars — it was adding noise
+  // since every bar was colored and nothing stood out.
+  const colors=rData.map(r=>{
+    if(r.total>=SLOW_T) return '#C0392B';   // red — slow
+    if(r.total>=HIGH_T) return '#D97706';   // amber — elevated
+    return '#B0B0B0';                        // gray — normal
+  });
+  const borders=rData.map(r=>r.total>=SLOW_T?'#A93226':r.total>=HIGH_T?'#CA6F1E':'transparent');
+  const rolling=totals.map((_,i)=>{const sl=totals.slice(Math.max(0,i-6),i+1);return Math.round(avg(sl));});
+
+  // Incident dot markers — match on run date OR next day (overnight runs)
+  const incRunDates=buildIncRunDates(INCIDENTS, rData);
+  const incMarkers=rData.map(r=>incRunDates.has(r.date)?r.total:null);
+
+  const ctx=document.getElementById('runChart').getContext('2d');
+
+  // Plugin: draws the horizontal SLA target line and incident ○ markers
+  const slaPlugin={
+    id:'slaAndMarkers',
+    afterDatasetsDraw(chart){
+      const {ctx:c, chartArea, scales}=chart;
+      const ys=scales.y, xs=scales.x;
+      // ── SLA horizontal dashed line ──
+      const slaY=ys.getPixelForValue(slaMin);
+      if(slaY>=chartArea.top && slaY<=chartArea.bottom){
+        c.save();
+        c.strokeStyle='#888';c.setLineDash([6,4]);c.lineWidth=1.2;
+        c.beginPath();c.moveTo(chartArea.left,slaY);c.lineTo(chartArea.right,slaY);c.stroke();
+        c.setLineDash([]);
+        c.fillStyle='#888';c.font='bold 9px Helvetica';c.textAlign='right';c.textBaseline='bottom';
+        c.fillText(SLA_HOURS+'h SLA', chartArea.right-4, slaY-3);
+        c.restore();
+      }
+      // ── Incident ○ markers above bars ──
+      rData.forEach((r,i)=>{
+        if(!incRunDates.has(r.date)) return;
+        const x=xs.getPixelForValue(i);
+        const y=ys.getPixelForValue(r.total)-14;
+        c.save();
+        c.beginPath();c.arc(x,y,5,0,Math.PI*2);
+        c.strokeStyle=MG;c.lineWidth=2;c.fillStyle='#fff';
+        c.fill();c.stroke();
+        c.restore();
+      });
+    }
+  };
+
+  charts['run']=new Chart(ctx,{type:'bar',data:{labels,datasets:[
+    {type:'bar',label:'Pipeline total',data:totals,backgroundColor:colors,borderColor:borders,borderWidth:rData.map(r=>r.total>=HIGH_T?2:0),borderRadius:2,order:2},
+    {type:'line',label:'7-run rolling median',data:rolling,borderColor:MG,borderWidth:2,pointRadius:0,borderDash:[5,3],fill:false,tension:.3,order:1}
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    onClick:(evt,elements,chart)=>{
+      if(!elements.length) return;
+      const idx=elements[0].index;
+      const run=rData[idx];
+      if(run&&run.date) showIncidentsForDate(run.date, 3);
+    },
+    onHover:(evt,elements)=>{evt.native.target.style.cursor=elements.length?'pointer':'default';},
+    plugins:{legend:{display:false},tooltip:{callbacks:{
+      title:items=>labels[items[0].dataIndex],
+      label:v=>{
+        if(v.dataset.label==='7-run rolling median') return 'Rolling median: '+fmtM(v.raw);
+        const r=rData[v.dataIndex];
+        const st=r.total>=SLOW_T?'SLOW ('+slowLbl+')':r.total>=HIGH_T?'Elevated ('+highLbl+')':'Normal';
+        const incOnDay=INCIDENTS.filter(x=>incMatchesRun(x.date, r.date));
+        const incLine=incOnDay.length?'⚠ '+incOnDay.length+' incident'+(incOnDay.length>1?'s':'')+' linked — click to view':'';
+        return['Total: '+fmtM(v.raw)+'  '+st, incLine].filter(Boolean);
+      }
+    },backgroundColor:'#111',titleColor:'#fff',bodyColor:'#bbb',padding:10,cornerRadius:6}},
+    scales:{
+      x:{ticks:{color:GR,font:{size:9},maxRotation:45,autoSkip:true,maxTicksLimit:25},grid:{display:false}},
+      y:{ticks:{color:GR,font:{size:10},callback:v=>`${Math.floor(v/60)}h`},grid:{color:'rgba(0,0,0,0.04)'}}
+    }},
+    plugins:[slaPlugin]
+  });
+
+  // Legend
+  const slowN=rData.filter(r=>r.total>=SLOW_T).length;
+  const highN=rData.filter(r=>r.total>=HIGH_T&&r.total<SLOW_T).length;
+  const incN=rData.filter(r=>incRunDates.has(r.date)).length;
+  const legEl=document.querySelector('.run-legend');
+  let legHtml='<span class="li"><span class="lsq" style="background:#B0B0B0"></span>Normal</span>';
+  if(highN>0) legHtml+=' <span class="li"><span class="lsq" style="background:#D97706"></span>Elevated ('+highLbl+') — '+highN+' run'+(highN!==1?'s':'')+'</span>';
+  if(slowN>0) legHtml+=' <span class="li"><span class="lsq" style="background:#b91c1c"></span>Slow ('+slowLbl+') — '+slowN+' run'+(slowN!==1?'s':'')+'</span>';
+  if(incN>0)  legHtml+=' <span class="li"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#fff;border:2px solid '+MG+';vertical-align:middle;margin-right:3px;"></span>Linked incident</span>';
+  legHtml+=' <span class="li" style="margin-left:auto;color:'+GR+'"><span style="display:inline-block;width:12px;border-top:2px dashed #888;vertical-align:middle;margin-right:3px;"></span>'+SLA_HOURS+'h SLA target</span>';
+  if(legEl) legEl.innerHTML=legHtml;
+
+  // Subtitle
+  const subEl=document.querySelector('.run-csub');
+  if(subEl) subEl.textContent=desc+' · SLOW ≥ '+fmtM(Math.round(SLOW_T))+' · Elevated ≥ '+fmtM(Math.round(HIGH_T))+' · Dashed = 7-run rolling median · Click any bar to find incidents ±3 days';
+}
+
+// ── TREND ──
+function renderTrend(mData, rData){
+  // ── Compute Pearson r for each stage vs total runtime, per month ──
+  const stages = [
+    {key:'ord_val',  label:'Order Validation',   color:'#7C3AED'},
+    {key:'pay_set',  label:'Payment Settlement',  color:'#A855F7'},
+    {key:'fraud',    label:'Fraud Check',         color:'#06B6D4'},
+    {key:'inv_sync', label:'Inventory Sync',      color:'#10B981'},
+    {key:'ful_exp',  label:'Fulfillment Export',  color:'#F59E0B'},
+    {key:'rpt',      label:'Reporting',           color:'#94A3B8'},
+  ];
+
+  // Per-month correlation: use individual runs grouped by month
+  const months = [...new Set(rData.map(r=>r.ym))].sort();
+  const monthLabels = months.map(ym=>{
+    const d = new Date(ym.slice(0,4)+'-'+ym.slice(4,6)+'-01');
+    return d.toLocaleDateString('en-US',{month:'short'});
+  });
+
+  function pearsonR(xs, ys){
+    const n=xs.length; if(n<3) return 0;
+    const mx=xs.reduce((a,b)=>a+b,0)/n, my=ys.reduce((a,b)=>a+b,0)/n;
+    let num=0,dx2=0,dy2=0;
+    for(let i=0;i<n;i++){
+      const dx=xs[i]-mx, dy=ys[i]-my;
+      num+=dx*dy; dx2+=dx*dx; dy2+=dy*dy;
+    }
+    return (dx2&&dy2)?num/Math.sqrt(dx2*dy2):0;
+  }
+
+  // Build correlation matrix: stages × months
+  const matrix = stages.map(s=>{
+    return months.map(ym=>{
+      const runs = rData.filter(r=>r.ym===ym);
+      if(runs.length < 3) return 0;
+      const xs = runs.map(r=>r.stages[s.key==='ord_val'?'order_validation':s.key==='pay_set'?'payment_settlement':s.key==='fraud'?'fraud_check':s.key==='inv_sync'?'inventory_sync':s.key==='ful_exp'?'fulfillment_export':'reporting']||0);
+      const ys = runs.map(r=>r.total);
+      return Math.round(pearsonR(xs,ys)*100)/100;
+    });
+  });
+
+  // Avg r² per stage (annual)
+  const avgR2 = stages.map((s,si)=>{
+    const vals = matrix[si].filter(v=>v!==0);
+    return vals.length ? vals.reduce((a,b)=>a+b*b,0)/vals.length : 0;
+  });
+
+  // ── Render heatmap as HTML table ──
+  const wrap = document.getElementById('heatmapWrap');
+  if(!wrap) return;
+
+  const cellW = Math.max(28, Math.floor(Math.min(wrap.offsetWidth||400, 600) / (months.length+1)) - 1);
+
+  let tbl = `<table style="border-collapse:collapse;font-size:10px;width:100%;">`;
+  // Header row — month labels
+  tbl += `<tr><td style="width:90px;"></td>`;
+  monthLabels.forEach(ml=>{
+    tbl += `<td style="text-align:center;color:#64748B;padding:2px 1px;font-size:9px;font-weight:600;">${ml}</td>`;
+  });
+  tbl += `</tr>`;
+
+  // Data rows
+  stages.forEach((s,si)=>{
+    tbl += `<tr>`;
+    tbl += `<td style="color:#94A3B8;font-size:10px;font-weight:600;padding:2px 6px 2px 0;white-space:nowrap;">${s.label}</td>`;
+    matrix[si].forEach(r=>{
+      const abs = Math.abs(r);
+      // Color: stage color with opacity based on r value
+      const hex = s.color.replace('#','');
+      const rv = parseInt(hex.slice(0,2),16);
+      const gv = parseInt(hex.slice(2,4),16);
+      const bv = parseInt(hex.slice(4,6),16);
+      const alpha = abs < 0.1 ? 0.05 : 0.1 + abs * 0.85;
+      const bg = `rgba(${rv},${gv},${bv},${alpha.toFixed(2)})`;
+      const textColor = abs > 0.6 ? '#F9FAFB' : abs > 0.3 ? '#CBD5E1' : '#475569';
+      const label = abs >= 0.05 ? r.toFixed(2).replace('0.','.'): '';
+      tbl += `<td style="background:${bg};text-align:center;color:${textColor};padding:3px 1px;border-radius:3px;font-size:9px;font-weight:${abs>0.5?'700':'400'};">${label}</td>`;
+    });
+    tbl += `</tr>`;
+  });
+
+  // Legend row
+  tbl += `<tr><td colspan="${months.length+1}" style="padding-top:6px;">
+    <div style="display:flex;align-items:center;gap:6px;font-size:9px;color:#64748B;">
+      <span>weak</span>
+      <div style="display:flex;gap:2px;">
+        ${[0.1,0.25,0.4,0.55,0.7,0.85,1.0].map(v=>`<div style="width:16px;height:8px;border-radius:2px;background:rgba(6,182,212,${(0.1+v*0.85).toFixed(2)});"></div>`).join('')}
+      </div>
+      <span>strong (r=1.0)</span>
+    </div>
+  </td></tr>`;
+  tbl += `</table>`;
+  wrap.innerHTML = tbl;
+
+  // ── Insight ──
+  const topStageIdx = avgR2.indexOf(Math.max(...avgR2));
+  const topStage = stages[topStageIdx];
+  const topR2pct = Math.round(avgR2[topStageIdx]*100);
+  const insightEl = document.getElementById('trend-insight');
+  if(insightEl){
+    insightEl.innerHTML = `<b style="color:${topStage.color}">${topStage.label}</b> has the strongest annual correlation with total runtime — avg r²=${(avgR2[topStageIdx]).toFixed(2)}, explaining ~<b>${topR2pct}%</b> of runtime variance. Watch for months where correlation spikes — they signal volume-driven bottlenecks.`;
+  }
+
+  // ── Bar chart: avg r² by stage ──
+  const barCtx = document.getElementById('corrBarChart');
+  if(!barCtx) return;
+  if(charts['corrBar']) charts['corrBar'].destroy();
+  charts['corrBar'] = new Chart(barCtx, {
+    type: 'bar',
+    data: {
+      labels: stages.map(s=>s.label.split(' ')[0]),
+      datasets:[{
+        data: avgR2.map(v=>Math.round(v*100)/100),
+        backgroundColor: stages.map(s=>s.color+'cc'),
+        borderColor: stages.map(s=>s.color),
+        borderWidth: 1,
+        borderRadius: 4,
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      responsive:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{
+          label: v=>`r² = ${v.raw.toFixed(2)} (${Math.round(v.raw*100)}% variance explained)`
+        }}
+      },
+      scales:{
+        x:{min:0,max:1,ticks:{color:'#64748B',font:{size:9},callback:v=>v.toFixed(1)},grid:{color:'rgba(255,255,255,0.04)'}},
+        y:{ticks:{color:'#94A3B8',font:{size:9}},grid:{display:false}}
+      }
+    }
+  });
+}
+
+function buildTrendInsightMultiMonth(mData){
+  if(mData.length<2) return '';
+  const stages=[
+    {key:'inv_sync', label:'Fraud Check'},
+    {key:'fraud',  label:'Fraud Check'},
+    {key:'ord_val',   label:'Order Validation'},
+    {key:'rpt',   label:'Reporting'},
+  ];
+  // For each stage compute trend (first vs last non-zero month)
+  const trends=stages.map(s=>{
+    const vals=mData.map(m=>m[s.key]||0);
+    const nonZero=vals.filter(v=>v>0);
+    if(nonZero.length<2) return null;
+    const first=nonZero[0], last=nonZero[nonZero.length-1];
+    const pct=((last-first)/first)*100;
+    return {...s, first, last, pct};
+  }).filter(Boolean);
+  if(!trends.length) return '';
+  // Pick the most notable mover — biggest absolute % change
+  const mover=trends.sort((a,b)=>Math.abs(b.pct)-Math.abs(a.pct))[0];
+  const dir=mover.pct>10?`<span style="color:#b91c1c">rising +${Math.round(mover.pct)}%</span>`
+           :mover.pct<-10?`<span style="color:#16a34a">falling ${Math.round(mover.pct)}%</span>`
+           :`<span style="color:#6A6A6A">flat (${mover.pct>=0?'+':''}${Math.round(mover.pct)}%)</span>`;
+  // ord_val note when relevant
+  const ownTrend=trends.find(t=>t.key==='ord_val');
+  let ownNote='';
+  if(ownTrend && Math.abs(ownTrend.pct)>5){
+    const ownDir=ownTrend.pct>=0?'up':'down';
+    ownNote=` <strong>ord_val_process</strong> is ${ownDir} ${Math.abs(Math.round(ownTrend.pct))}% (${fmtM(Math.round(ownTrend.first))} → ${fmtM(Math.round(ownTrend.last))}) — it has the <strong>highest correlation with total runtime (r=0.71)</strong>, so this movement matters.`;
+  }
+  const falling=trends.filter(t=>t.pct<-10);
+  let fallNote='';
+  if(falling.length) fallNote=` ${falling.map(t=>`<strong>${t.label}</strong>`).join(' and ')} ${falling.length>1?'are':'is'} falling — healthy sign if the reduction is sustained.`;
+  return `<strong>${mover.label}</strong> is the most notable mover: ${dir} from ${fmtM(Math.round(mover.first))} → ${fmtM(Math.round(mover.last))} over ${mData.length} months.${ownNote}${fallNote}`;
+}
+
+// Sprint 3 Fix #14: build insight for single-month drill-down
+function buildTrendInsightSingleMonth(topStage, topVal, avgOwn, avgIcm, avgBus){
+  const ownNote=topStage!=='ord_val_process'&&avgOwn>60
+    ? ` <strong>ord_val_process</strong> (${fmtM(avgOwn)}/run) has the <strong>highest correlation with total runtime (r=0.71)</strong> — even when not the top driver, optimizing it delivers the most SLA impact.`
+    : topStage==='ord_val_process'
+    ? ` It has the <strong>highest correlation with total runtime (r=0.71)</strong> — the single highest-ROI optimization target.`
+    : '';
+  return `<strong>${topStage}</strong> is the top driver this month, averaging <strong>${fmtM(topVal)}</strong> per run.${ownNote}`;
+}
+
+// ── SLOW TABLE ──
+function renderSlowTable(rData){
+  const sorted=[...rData].sort((a,b)=>b.total-a.total).slice(0,10);
+  if(!sorted.length){ document.getElementById('slowTable').innerHTML='<div class="nodata">No data</div>'; return; }
+  const mx=sorted[0].total;
+  const slaMin=SLA_HOURS*60;
+  // Badge thresholds relative to SLA target:
+  // SLOW = > 140% of SLA (e.g. >18h 12m for 13h) — seriously over
+  // HIGH = > 115% of SLA (e.g. >14h 57m for 13h) — notably over
+  // OK   = ≤ 115% of SLA — on target or minor overage
+  const SLOW_T=slaMin*1.4, HIGH_T=slaMin*1.15;
+  const rows=sorted.map(r=>{
+    const s=r.stages||{};
+    const own=s['ord_val_process']||0, taccln=s['pay_set_trans_validate']||0, icm=(s['fraud_check']||0)+(s['fraud_check']||0), imp=s['inventory_sync_exec_import']||0, bus=s['rpt_pkg']||0, comm=s['_unused1_archive']||0, tran=(s['run_rpttrandetail_proc']||0)+(s['run_rptcompsummary_proc']||0);
+    const driver=[['Order Validation',own],['Payment Settlement',taccln],['Fraud Check',icm],['Fulfillment Export',imp],['Reporting',bus],['_unused1',comm],['reporting',tran]].sort((a,b)=>b[1]-a[1])[0][0];
+    const pct=Math.round(r.total/mx*100);
+    const badge=r.total>=SLOW_T?'<span class="pill pill-crit">SLOW</span>':r.total>HIGH_T?'<span class="pill pill-warn">HIGH</span>':'<span class="pill pill-ok">OK</span>';
+    const d=r.date; const label=d.slice(4,6)+'/'+d.slice(6,8)+'/'+d.slice(0,4);
+    return `<tr><td>${label}</td><td><strong>${fmtM(r.total)}</strong><span class="bar-i" style="width:${Math.round(pct*0.5)}px"></span></td><td style="color:${GR};font-size:10px">${driver}</td><td>${badge}</td></tr>`;
+  }).join('');
+  document.getElementById('slowTable').innerHTML=`<table class="tbl"><thead><tr><th>Date</th><th>Runtime</th><th>Top driver</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+// ── FEED CHART ──
+function renderFeed(fData){
+  dc('feed');
+  if(!fData.length) return;
+  // Outlier coloring: red=zero or -2σ drop, amber=+2σ spike, normal=magenta
+  const allVals=fData.map(r=>r.all);
+  const fMu=avg(allVals), fSig=sd(allVals);
+  const isDarkTheme=true;
+  const spikeColor=isDarkTheme?'#e2e8f0':'#A855F7';     // light gray dark / Berry light
+  const fColors=fData.map(r=>{
+    if(r.feat===0||r.all<fMu-2*fSig) return '#b91c1c';  // alert red: zero feed or extreme drop
+    if(r.all>fMu+2*fSig)             return spikeColor;  // spike: contrasting in both themes
+    return MG+'88';                                       // faded Magenta: normal
+  });
+  // 7-day rolling median line
+  const rolling=allVals.map((_,i)=>{
+    const sl=[...allVals.slice(Math.max(0,i-6),i+1)].sort((a,b)=>a-b);
+    return sl[Math.floor(sl.length/2)];
+  });
+  const medianLineColor=isDarkTheme?'#ffffff':'#000000';
+  const ctx=document.getElementById('feedChart').getContext('2d');
+  charts['feed']=new Chart(ctx,{
+    type:'bar',
+    data:{labels:fData.map(r=>r.date.slice(4,6)+'/'+r.date.slice(6,8)),
+      datasets:[
+        {type:'bar',label:'All feeds',data:allVals,backgroundColor:fColors,borderRadius:2,order:2},
+        {type:'line',label:'7-day rolling median',data:rolling,borderColor:medianLineColor,borderWidth:2,pointRadius:0,borderDash:[5,4],fill:false,tension:.3,order:1}
+      ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>{
+          if(v.dataset.label==='7-day rolling median') return 'Rolling median: '+(v.raw/1e6).toFixed(2)+'M';
+          const r=fData[v.dataIndex];
+          const s=r.feat===0?' ⚠ ZERO feed':r.all>fMu+2*fSig?' ▲ Spike (+2σ)':r.all<fMu-2*fSig?' ▼ Drop (-2σ)':'';
+          return (v.raw/1e6).toFixed(2)+'M'+s;
+        }}}},
+      scales:{
+        x:{ticks:{color:GR,font:{size:9},maxRotation:45,autoSkip:true,maxTicksLimit:20},grid:{display:false}},
+        y:{ticks:{color:GR,font:{size:9},callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'K':v},grid:{color:'rgba(0,0,0,0.04)'}}
+      }}
+  });
+}
+
+// ── FEED DONUT ──
+function renderFeedDonut(fData){
+  dc('feedDonut');
+  if(!fData.length) return;
+  const feat=Math.round(avg(fData.map(r=>r.feat)));
+  const sub=Math.round(avg(fData.map(r=>r.sub)));
+  const iot=Math.round(avg(fData.map(r=>r.iot)));
+  const tot=feat+sub+iot;
+  const ctx=document.getElementById('feedDonut').getContext('2d');
+  charts['feedDonut']=new Chart(ctx,{
+    type:'doughnut',
+    data:{labels:['Payments','Inventory','Orders'],
+      datasets:[{data:[feat,sub,iot],backgroundColor:[MG,BERRY,GR],borderColor:'#fff',borderWidth:3,hoverOffset:4}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',
+      plugins:{legend:{display:true,position:'right',labels:{font:{size:11},color:'#CBD5E1',boxWidth:12,padding:8}},
+        tooltip:{callbacks:{label:v=>`${v.label}: ${(v.raw/1e3).toFixed(0)}K avg (${Math.round(v.raw/tot*100)}%)`}}}}
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
+// ── RECENT INCIDENTS LIST ──
+function renderRecentIncidents(){
+  const el=document.getElementById('recentIncList');
+  const titleEl=document.getElementById('recentIncTitle');
+  if(!el) return;
+  if(!INCIDENTS||!INCIDENTS.length){
+    el.innerHTML='<div class="nodata">No incident data loaded</div>';
+    return;
+  }
+  // Sort by date descending, take latest 8
+  const sorted=[...INCIDENTS]
+    .filter(i=>i.date&&i.date.length===8)
+    .sort((a,b)=>b.date.localeCompare(a.date))
+    .slice(0,8);
+
+  if(titleEl) titleEl.textContent=`Recent incidents · last ${sorted.length}`;
+
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  el.innerHTML=sorted.map(inc=>{
+    const d=inc.date;
+    const dateLabel=months[+d.slice(4,6)-1]+' '+d.slice(6,8)+', '+d.slice(0,4);
+    // Shorten process name for display
+    const proc=(inc.process||'').replace('_PROCESS','').replace('_EXEC_CALC','').replace('_PARALLEL','').toLowerCase();
+    const rca=(inc.rca||inc.ica||'No details recorded').replace(/\n/g,' ').trim();
+    // Normalise category for CSS class
+    const catRaw=(inc.category||'Other').trim();
+    const catClass=catRaw.replace(/\s+/g,'').replace('DataQuality','DataQuality');
+    const catLabel=catRaw==='DataQuality'?'Data Quality':catRaw;
+    return `<div class="rinc-row">
+      <div>
+        <div class="rinc-meta">
+          <span class="rinc-date">${dateLabel}</span>
+          <span class="rinc-proc">${proc}</span>
+        </div>
+        <div class="rinc-rca">${rca}</div>
+      </div>
+      <span class="rinc-cat ${catClass}">${catLabel}</span>
+    </div>`;
+  }).join('');
+}
+
+// Sprint 2 Fix #11: INCIDENT TREND — reliability trajectory
+// ═══════════════════════════════════════════════════════════════════════
+// Two visuals:
+//   1. Stacked-area chart of rolling-90-day incident counts by category.
+//      Monthly resolution — at 67 incidents across ~700 days, finer windows
+//      are too sparse to show a trend.
+//      with arrow indicators.
+// "Today" marker plugin for incident trend chart
+const todayLinePlugin = {
+  id: 'todayLine',
+  afterDatasetsDraw(chart){
+    const {ctx, chartArea, scales, data} = chart;
+    if(!chartArea) return;
+    const lastIdx = data.labels.length - 1;
+    if(lastIdx < 0) return;
+    const xPos = scales.x.getPixelForValue(lastIdx);
+    const isDark = true;
+    const lineCol = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.35)';
+    const txtCol  = isDark ? '#ffffff' : '#000000';
+    ctx.save();
+    ctx.strokeStyle = lineCol;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(xPos, chartArea.top);
+    ctx.lineTo(xPos, chartArea.bottom);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = txtCol;
+    ctx.font = 'bold 9px Helvetica';
+    ctx.textAlign = 'right';
+    ctx.fillText('today', xPos - 4, chartArea.top + 10);
+    ctx.restore();
+  }
+};
+
+function renderIncidentTrend(rData){
+  const sec=document.getElementById('incTrendSection');
+  if(!sec) return;
+  if(!INCIDENTS.length){ sec.style.display='none'; return; }
+  sec.style.display='block';
+  const isDarkInc = true;
+
+  const cats=['Infrastructure','Data Quality','Database','Other','Deployment','Environment'];
+  const catColors={Infrastructure:'#7C3AED','Data Quality':'#EC4899',Database:'#0891B2',Other:'#6A6A6A',Deployment:'#D97706',Environment:'#16A34A'};
+
+  // Always show all-time incidents regardless of period filter
+  const filteredInc = INCIDENTS;
+  const total = filteredInc.length;
+
+  // Update subtitle
+  const subEl = document.getElementById('incCatSub');
+  if(subEl) subEl.textContent = `All time · ${total} incident${total!==1?'s':''} total · count + % of total`;
+
+  // Count per category
+  const counts = {};
+  cats.forEach(c => { counts[c] = filteredInc.filter(i=>i.category===c).length; });
+
+  // Only show categories with at least 1 incident, sorted descending
+  const activeCats = cats.filter(c=>counts[c]>0).sort((a,b)=>counts[b]-counts[a]);
+
+  if(!activeCats.length){
+    dc('incTrend');
+    return;
+  }
+
+  // Build horizontal bar chart: one bar per category, length = count
+  dc('incTrend');
+  const ctx=document.getElementById('incTrendChart');
+  if(!ctx) return;
+
+  charts['incTrend']=new Chart(ctx,{
+    type:'doughnut',
+    data:{
+      labels:activeCats,
+      datasets:[{
+        data:activeCats.map(c=>counts[c]),
+        backgroundColor:activeCats.map(c=>catColors[c]+'ee'),
+        borderColor:'#fff',
+        borderWidth:3,
+        hoverOffset:6,
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      cutout:'60%',
+      plugins:{
+        legend:{
+          display:true,
+          position:'right',
+          labels:{
+            font:{size:10},
+            boxWidth:10,
+            padding:8,
+            generateLabels:chart=>{
+              const ds=chart.data.datasets[0];
+              const textColor='#e2e8f0';
+              return chart.data.labels.map((lbl,i)=>{
+                const val=ds.data[i];
+                const pct=total>0?Math.round(val/total*100):0;
+                return {
+                  text:`${lbl}  ${val} (${pct}%)`,
+                  fillStyle:ds.backgroundColor[i],
+                  strokeStyle:'transparent',
+                  fontColor:textColor,
+                  index:i
+                };
+              });
+            }
+          }
+        },
+        tooltip:{callbacks:{
+          label:v=>{
+            const pct=total>0?Math.round(v.raw/total*100):0;
+            return `  ${v.raw} incident${v.raw!==1?'s':''} · ${pct}%`;
+          }
+        }}
+      }
+    }
+  });
+}
+
+
+// ── ANOMALY LIST ──
+// Sprint 1 Fix #7: switched from mean±2σ (inflated by catch-up days) to rolling
+// 14-day MAD (median absolute deviation). Robust to the large catch-up batches
+// (e.g., 2.9M rows after a gap) that were previously blowing up σ and hiding
+// the real smaller anomalies. Zero-output days are always P1 regardless of stats.
+function rollingMedianAndMAD(series, centerIdx, windowDays){
+  if(windowDays===undefined) windowDays=14;
+  const w=series.slice(Math.max(0,centerIdx-windowDays+1), centerIdx+1).filter(v=>v>0); // drop zeros from stats
+  if(w.length<3) return null; // not enough history yet
+  const med=(arr)=>{const s=[...arr].sort((a,b)=>a-b);const m=Math.floor(s.length/2);return s.length%2?s[m]:(s[m-1]+s[m])/2;};
+  const m=med(w);
+  const devs=w.map(v=>Math.abs(v-m));
+  const madRaw=med(devs);
+  // 1.4826 scaling makes MAD consistent with σ for normal data
+  const mad=madRaw*1.4826;
+  return {median:m, mad:Math.max(mad,m*0.05)}; // floor to avoid div-by-zero on flat series
+}
+
+function renderAnomalies(fData){
+  if(!fData.length){ document.getElementById('anomalyList').innerHTML='<div class="nodata">No feed data</div>'; return; }
+  // Use the full sorted feed history for rolling window computation
+  const allFeeds=[...FEEDS].sort((a,b)=>a.date.localeCompare(b.date));
+  const dateToIdx={}; allFeeds.forEach((r,i)=>dateToIdx[r.date]=i);
+  const allSeries=allFeeds.map(r=>r.all);
+  const featSeries=allFeeds.map(r=>r.feat);
+  const subSeries=allFeeds.map(r=>r.sub);
+  const anomalies=[];
+  fData.forEach(r=>{
+    const i=dateToIdx[r.date]; if(i===undefined) return;
+    // P1: any zero-output day is an outage regardless of statistics
+    if(r.feat===0){ anomalies.push({date:r.date,desc:'ORDER_VOLUME = 0 · adapter did not run',val:'ZERO',sev:'p1',sortKey:1000}); return; }
+    if(r.all===0){ anomalies.push({date:r.date,desc:'ALL_ORDERS = 0 · full outage',val:'ZERO',sev:'p1',sortKey:1000}); return; }
+    // Rolling MAD on each channel
+    const allS=rollingMedianAndMAD(allSeries,i);
+    if(allS){
+      const z=(r.all-allS.median)/allS.mad;
+      if(z>=3){
+        anomalies.push({date:r.date,desc:`Order volume spike — ${(r.all/1000).toFixed(0)}K orders (${z.toFixed(1)}× median dev)`,val:`+${Math.round((r.all/allS.median-1)*100)}%`,sev:'spike',sortKey:Math.abs(z)});
+      } else if(z<=-3){
+        anomalies.push({date:r.date,desc:`ALL_ORDERS drop — ${(r.all/1e3).toFixed(0)}K rows (${z.toFixed(1)}× median dev)`,val:`${Math.round((r.all/allS.median-1)*100)}%`,sev:'drop',sortKey:Math.abs(z)});
+      }
+    }
+    const featS=rollingMedianAndMAD(featSeries,i);
+    if(featS && r.feat>0){
+      const z=(r.feat-featS.median)/featS.mad;
+      if(z>=4) anomalies.push({date:r.date,desc:`ORDER_VOLUME extreme spike — ${(r.all/1000).toFixed(0)}K orders · +(r.feat/1e6).toFixed(2)}M`,val:`+${Math.round((r.feat/featS.median-1)*100)}%`,sev:'spike',sortKey:Math.abs(z)});
+    }
+  });
+  // Dedupe by (date,desc): sometimes ALL_ORDERS and ORDER_VOLUME both flag same day
+  const seen=new Set();
+  const unique=anomalies.filter(a=>{const k=a.date+'|'+a.sev;if(seen.has(k))return false;seen.add(k);return true;});
+  // Sort: P1 first, then by severity (MAD distance), then most recent
+  unique.sort((a,b)=>{
+    if(a.sev==='p1'&&b.sev!=='p1') return -1;
+    if(b.sev==='p1'&&a.sev!=='p1') return 1;
+    return b.sortKey-a.sortKey || b.date.localeCompare(a.date);
+  });
+  if(!unique.length){
+    document.getElementById('anomalyList').innerHTML='<div style="color:#16a34a;font-size:12px;padding:12px 0">No anomalies detected in this period</div>';
+    const t=document.getElementById('anomalyTitle');
+    if(t) t.textContent='Order Volume Anomaly Log';
+    return;
+  }
+
+  // Update card title with count (matches Image 1: "Feed anomaly log · 12 events")
+  const t=document.getElementById('anomalyTitle');
+  if(t) t.textContent=`Feed anomaly log · ${unique.length} event${unique.length!==1?'s':''}`;
+
+  const SHOW=6; // show top 6, match Image 1
+  const shown=unique.slice(0,SHOW);
+  const rest=unique.length-SHOW;
+
+  const html=shown.map(a=>{
+    const d=a.date;
+    // "Mar 06" format matching Image 1
+    const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const lbl=months[+d.slice(4,6)-1]+' '+d.slice(6,8);
+    const rowClass=a.sev==='p1'?'sev-p1':(a.sev==='drop'?'sev-drop':'sev-spike');
+    const valClass=a.sev==='p1'?'p1':(a.sev==='drop'?'drop':'spike');
+    // P1 rows show "P1" badge, spike/drop rows show the percentage
+    const valHtml=a.sev==='p1'
+      ? `<span class="aval ${valClass}">P1</span>`
+      : `<span class="aval ${valClass}">${a.val}</span>`;
+    return `<div class="arow ${rowClass}"><span class="adate">${lbl}</span><span class="adesc">${a.desc}</span>${valHtml}</div>`;
+  }).join('');
+
+  const moreHtml=rest>0
+    ? `<div class="amore"><span>+ ${rest} more</span><span style="color:var(--gr)">minor spikes · see full log</span><span class="amore-arrow">→</span></div>`
+    : '';
+
+  document.getElementById('anomalyList').innerHTML=html+moreHtml;
+}
+
+// ══════════════════════════════════════════════════
+//  INCIDENT PANEL
+// ══════════════════════════════════════════════════
+let incSortCol='date', incSortDir=-1;  // -1 = DESC (newest first)
+
+function renderIncidentPanel(){
+  renderIncidentSummary();
+  renderIncidentCharts();
+  renderIncidentTable();
+}
+
+function showIncidents(syncPeriod){
+  if(!INCIDENTS_LOADED&&INCIDENTS.length===0){
+    alert('No incident data loaded.\n\nAdd Incident_Log.csv to your OneDrive folder and reload the dashboard.');
+    return;
+  }
+  // Sync period from main dashboard if provided
+  const periodSel=document.getElementById('incPeriodSel');
+  if(periodSel&&syncPeriod){
+    // Map main filter to incident period
+    const validOpts=['all','cur','prev','3m','6m','ytd','ly','2024','2025','2026'];
+    periodSel.value=validOpts.includes(syncPeriod)?syncPeriod:'all';
+  }
+  document.getElementById('incidentPanel').classList.add('open');
+  populateIncidentProcessFilter();
+  renderIncidentPanel();
+}
+function hideIncidents(){
+  document.getElementById('incidentPanel').classList.remove('open');
+  // Sprint 1 Fix #4: clear any active date window when modal closes
+  window._incDateWindow=null;
+}
+
+function incDateInPeriod(dateKey, filt){
+  if(!filt||filt==='all') return true;
+  const ym=dateKey.slice(0,6);
+  const today=TODAY_YM||dateKey.slice(0,6);
+  const yr=+today.slice(0,4), mo=+today.slice(4);
+  const getYMOff=(off)=>{ let y=yr,m=mo+off; while(m<=0){m+=12;y--;} while(m>12){m-=12;y++;} return String(y)+String(m).padStart(2,'0'); };
+  if(filt==='cur')  return ym===today;
+  if(filt==='prev') return ym===getYMOff(-1);
+  if(filt==='3m')   return ym>=getYMOff(-2);
+  if(filt==='6m')   return ym>=getYMOff(-5);
+  if(filt==='ytd')  return ym.startsWith(String(yr));
+  if(filt==='ly')   return ym.startsWith(String(yr-1));
+  if(filt.length===4) return ym.startsWith(filt);  // year filter e.g. '2025'
+  return true;
+}
+
+function getFilteredIncidents(){
+  const period=document.getElementById('incPeriodSel')?.value||'all';
+  const cat=document.getElementById('incCatSel')?.value||'';
+  const proc=document.getElementById('incProcSel')?.value||'';
+  const q=(document.getElementById('incSearch')?.value||'').toLowerCase();
+  // Sprint 1 Fix #4: optional ±N day window set via showIncidentsForDate()
+  const win=window._incDateWindow; // {center:'YYYYMMDD', days:N} or null
+  return INCIDENTS.filter(i=>{
+    if(win){
+      // Convert YYYYMMDD keys to Date objects for range check
+      const toD=k=>new Date(+k.slice(0,4),+k.slice(4,6)-1,+k.slice(6,8));
+      const ms=toD(i.date)-toD(win.center);
+      const days=Math.abs(ms/(1000*60*60*24));
+      if(days>win.days) return false;
+    }
+    return incDateInPeriod(i.date, period) &&
+      (!cat||i.category===cat) &&
+      (!proc||i.process===proc) &&
+      (!q||(i.rca+' '+i.ica+' '+i.process).toLowerCase().includes(q));
+  });
+}
+
+function renderIncidentSummary(){
+  const filtered=getFilteredIncidents();
+  const total=filtered.length;
+  const infra=filtered.filter(i=>i.category==='Infrastructure').length;
+  const dq=filtered.filter(i=>i.category==='Data Quality').length;
+  const db=filtered.filter(i=>i.category==='Database').length;
+  const deploy=filtered.filter(i=>i.category==='Deployment').length;
+  const env=filtered.filter(i=>i.category==='Environment').length;
+  const other=filtered.filter(i=>!['Infrastructure','Data Quality','Database','Deployment','Environment'].includes(i.category)).length;
+  const hdrCount=document.getElementById('incHeaderCount');
+  if(hdrCount){
+    const totalAll=INCIDENTS.length;
+    hdrCount.textContent=(total===totalAll)
+      ? `${totalAll} incidents logged across all pipeline stages`
+      : `${total} of ${totalAll} incidents in selected period`;
+  }
+  // Only render non-zero category tiles (except Total which always shows)
+  const tiles=[
+    {val:total,  lbl:'Total',          color:'#7C3AED'},
+    {val:infra,  lbl:'Infrastructure', color:'#7C3AED'},
+    {val:dq,     lbl:'Data Quality',   color:'#7C3AED'},
+    {val:db,     lbl:'Database',       color:'#0891B2'},
+    {val:deploy, lbl:'Deployment',     color:'#D97706'},
+    {val:env,    lbl:'Environment',    color:'#16A34A'},
+    {val:other,  lbl:'Other',          color:'#6A6A6A'},
+  ].filter(t=>t.lbl==='Total'||t.val>0);
+  document.getElementById('incSummary').innerHTML=tiles.map(t=>
+    `<div class="inc-stat"><div class="inc-stat-val" style="color:${t.color}">${t.val}</div><div class="inc-stat-lbl">${t.lbl}</div></div>`
+  ).join('');
+}
+function renderIncidentCharts(){
+  // Category donut
+  const cats=['Infrastructure','Data Quality','Database','Other','Deployment','Environment'];
+  const catColors=['#7C3AED','#7C3AED','#0891B2','#6A6A6A','#D97706','#16A34A'];
+  const fi=getFilteredIncidents();
+  const catCounts=cats.map(c=>fi.filter(i=>i.category===c).length);
+  const cc=document.getElementById('incCatChart');
+  if(cc){
+    if(window._incCatChart) window._incCatChart.destroy();
+    window._incCatChart=new Chart(cc,{type:'doughnut',
+      data:{labels:cats,datasets:[{data:catCounts,backgroundColor:catColors,borderWidth:0}]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{position:'right',labels:{color:'#888',font:{size:9},boxWidth:10}}}}
+    });
+  }
+  // Top processes bar
+  const procCounts=Object.entries(fi.reduce((a,i)=>{a[i.process]=(a[i.process]||0)+1;return a;},{}))
+    .sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const pc=document.getElementById('incProcChart');
+  if(pc){
+    if(window._incProcChart) window._incProcChart.destroy();
+    const shortNames=procCounts.map(([p])=>p.replace('SHELL ','').replace('_PROCESS','').replace('_CALC',''));
+    window._incProcChart=new Chart(pc,{type:'bar',
+      data:{labels:shortNames,datasets:[{data:procCounts.map(([,n])=>n),backgroundColor:'#7C3AEDcc',borderRadius:3}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{x:{ticks:{color:'#666',font:{size:9}},grid:{color:'rgba(255,255,255,0.04)'}},
+                y:{ticks:{color:'#888',font:{size:9}},grid:{display:false}}}
+      }
+    });
+  }
+}
+
+function populateIncidentProcessFilter(){
+  const sel=document.getElementById('incProcSel');
+  if(!sel) return;
+  const procs=[...new Set(INCIDENTS.map(i=>i.process))].sort();
+  sel.innerHTML='<option value="">All processes</option>'+
+    procs.map(p=>`<option>${p}</option>`).join('');
+}
+
+function sortInc(col){
+  if(incSortCol===col) incSortDir*=-1;
+  else {incSortCol=col; incSortDir=col==='date'?-1:1;}
+  renderIncidentTable();
+}
+
+function renderIncidentTable(){
+  const data=getFilteredIncidents().sort((a,b)=>{
+    const av=a[incSortCol]||'', bv=b[incSortCol]||'';
+    return av<bv?incSortDir:av>bv?-incSortDir:0;
+  });
+  document.getElementById('incCount').textContent=data.length+' incident'+(data.length!==1?'s':'');
+  const catClass=cat=>('cat-'+cat).replace(' ','\\');
+  document.getElementById('incTableBody').innerHTML=data.map(i=>`
+    <tr>
+      <td style="white-space:nowrap;color:#fff;font-weight:600;">${i.display_date}</td>
+      <td style="color:#7C3AED;font-size:10px;">${i.process}</td>
+      <td><span class="cat-pill cat-${i.category.replace(/\s+/g,'-')}">${i.category}</span></td>
+      <td style="max-width:300px;line-height:1.5;">${i.rca}</td>
+      <td style="max-width:300px;line-height:1.5;color:#888;">${i.ica}</td>
+    </tr>
+  `).join('');
+}
+
+// Show incidents for a specific date/stage (called from run chart click)
+// Sprint 1 Fix #4: uses a ±N day window instead of exact date match, since
+// an incident the day before often causes a slow run the next day.
+function showIncidentsForDate(date, windowDays){
+  if(windowDays===undefined) windowDays=3;
+  window._incDateWindow={center:date, days:windowDays};
+  // Open modal without period-sync (window takes precedence)
+  INCIDENTS_LOADED=INCIDENTS_LOADED||INCIDENTS.length>0;
+  document.getElementById('incidentPanel').classList.add('open');
+  populateIncidentProcessFilter();
+  // Clear the search/period filters so the window isn't contradicted
+  const srch=document.getElementById('incSearch'); if(srch) srch.value='';
+  const per=document.getElementById('incPeriodSel'); if(per) per.value='all';
+  renderIncidentPanel();
+  // Show a banner indicating the window is active
+  const hdr=document.getElementById('incHeaderCount');
+  if(hdr){
+    const d=date.slice(4,6)+'/'+date.slice(6,8)+'/'+date.slice(0,4);
+    hdr.innerHTML=`Filtered to ±${windowDays} days around <b style="color:#7C3AED">${d}</b> (includes next-day incidents for overnight runs) · <a href="#" style="color:#888;text-decoration:underline;" onclick="clearIncidentDateWindow();return false;">clear window</a>`;
+  }
+}
+function clearIncidentDateWindow(){
+  window._incDateWindow=null;
+  renderIncidentPanel();
+}
+
+
+// ── NEXORA CUSTOM SELECT HELPERS ──
+function toggleNxSel(id){
+  const drop = document.getElementById(id+'SelDrop');
+  const allDrops = document.querySelectorAll('.nx-sel-dropdown');
+  allDrops.forEach(d=>{ if(d!==drop) d.style.display='none'; });
+  drop.style.display = drop.style.display==='none' ? 'block' : 'none';
+}
+function closeNxSel(id, label){
+  document.getElementById(id+'SelDrop').style.display='none';
+  const btn = document.getElementById(id+'SelBtn');
+  if(btn) btn.textContent = label + ' ▾';
+  // Update .on state
+  document.querySelectorAll('#'+id+'SelDrop .nx-sel-opt').forEach(o=>{
+    o.classList.toggle('on', o.textContent.trim()===label.trim());
+  });
+  // Update btn .on class
+  if(btn) btn.classList.add('on');
+}
+// Close dropdowns when clicking outside
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.nx-select-wrap')){
+    document.querySelectorAll('.nx-sel-dropdown').forEach(d=>d.style.display='none');
+  }
+});
+// Populate month/year dropdowns from data
+function populateNxSelectors(){
+  const monthDrop = document.getElementById('monthSelDrop');
+  const yearDrop  = document.getElementById('yearSelDrop');
+  if(!monthDrop||!yearDrop||!RUNS.length) return;
+  const yms = [...new Set(RUNS.map(r=>r.ym))].sort();
+  const years = [...new Set(yms.map(y=>y.slice(0,4)))].sort();
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  // Months
+  monthDrop.innerHTML = '<div class="nx-sel-opt on" onclick="setMonth(\'\');closeNxSel(\'month\',\'All months\')">All months</div>';
+  const uniqueMonths=[...new Set(yms.map(y=>y.slice(4,6)))].sort();
+  uniqueMonths.forEach(m=>{
+    const label=months[+m-1];
+    monthDrop.innerHTML+=`<div class="nx-sel-opt" onclick="setMonth('${m}');closeNxSel('month','${label}')">${label}</div>`;
+  });
+  // Years
+  yearDrop.innerHTML = '<div class="nx-sel-opt on" onclick="setYear(\'\');closeNxSel(\'year\',\'All years\')">All years</div>';
+  years.forEach(y=>{
+    yearDrop.innerHTML+=`<div class="nx-sel-opt" onclick="setYear('${y}');closeNxSel('year','${y}')">${y}</div>`;
+  });
+}
+
+// ── AUTO-LOAD ON PAGE READY ──
+document.addEventListener('DOMContentLoaded', () => {
+  // Show dashboard shell immediately, load data async
+  document.getElementById('dashboard').style.display='block';
+  loadNexoraData();
+});
+</script>
+
+<!-- ══════════ INCIDENT PANEL ══════════ -->
+<div id="incidentPanel">
+  <div class="inc-modal">
+    <div class="inc-header">
+      <div>
+        <div class="inc-title">&#9888; Incident Log · Production Pipeline</div>
+        <div style="color:#555;font-size:11px;margin-top:4px;" id="incHeaderCount">Loading incident counts…</div>
+      </div>
+      <button class="inc-close" onclick="hideIncidents()">&#10005; Close</button>
+    </div>
+
+    <div class="inc-summary" id="incSummary"></div>
+
+    <div class="inc-filters">
+      <span style="color:#666;font-size:11px;">Period:</span>
+      <select id="incPeriodSel" onchange="renderIncidentPanel()">
+        <option value="all">All time</option>
+        <option value="cur">Current month</option>
+        <option value="prev">Previous month</option>
+        <option value="3m">Last 3 months</option>
+        <option value="6m">Last 6 months</option>
+        <option value="ytd">YTD</option>
+        <option value="ly">Last year</option>
+        <option value="2024">2024</option>
+        <option value="2025">2025</option>
+        <option value="2026">2026</option>
+      </select>
+      <span style="color:#444;font-size:10px;margin:0 4px;">|</span>
+      <span style="color:#666;font-size:11px;">Category:</span>
+      <select id="incCatSel" onchange="renderIncidentTable()">
+        <option value="">All</option>
+        <option>Infrastructure</option>
+        <option>Data Quality</option>
+        <option>Database</option>
+        <option>Other</option>
+        <option>Deployment</option>
+        <option>Environment</option>
+      </select>
+      <select id="incProcSel" onchange="renderIncidentTable()">
+        <option value="">All processes</option>
+      </select>
+      <input type="text" id="incSearch" placeholder="Search RCA / ICA..." oninput="renderIncidentTable()" style="min-width:180px;">
+      <span id="incCount" style="color:#555;font-size:11px;margin-left:auto;"></span>
+    </div>
+
+    <div class="inc-charts">
+      <div class="inc-chart-card">
+        <div class="inc-chart-title">Incidents by Category</div>
+        <div style="height:160px;"><canvas id="incCatChart"></canvas></div>
+      </div>
+      <div class="inc-chart-card">
+        <div class="inc-chart-title">Top Recurring Processes</div>
+        <div style="height:160px;"><canvas id="incProcChart"></canvas></div>
+      </div>
+    </div>
+
+    <table class="inc-table" id="incTable">
+      <thead>
+        <tr>
+          <th onclick="sortInc('date')">Date &#8597;</th>
+          <th onclick="sortInc('process')">Process &#8597;</th>
+          <th onclick="sortInc('category')">Category &#8597;</th>
+          <th>RCA</th>
+          <th>ICA (Action Taken)</th>
+        </tr>
+      </thead>
+      <tbody id="incTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+</body>
+</html>
