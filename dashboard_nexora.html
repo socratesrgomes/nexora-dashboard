@@ -2,6 +2,12 @@
 <html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
+<script>
+(function() {
+  var saved = localStorage.getItem('nx-theme');
+  if (saved) document.documentElement.setAttribute('data-theme', saved);
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nexora · Production Intelligence Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -3635,14 +3641,11 @@ function toggleTheme() {
   }
 }
 
-/* Restore saved preference on load */
+/* Sync button label with saved theme */
 (function() {
-  const saved = localStorage.getItem('nx-theme');
-  if (saved) {
-    document.documentElement.setAttribute('data-theme', saved);
-    const btn = document.getElementById('themeToggleBtn');
-    if (btn) btn.innerHTML = saved === 'light' ? '☾ Dark' : '☀ Light';
-  }
+  var saved = localStorage.getItem('nx-theme');
+  var btn = document.getElementById('themeToggleBtn');
+  if (btn && saved) btn.innerHTML = saved === 'light' ? '☾ Dark' : '☀ Light';
 })();
 
 
