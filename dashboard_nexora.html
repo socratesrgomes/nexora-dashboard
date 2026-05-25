@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -967,6 +967,352 @@ code{background:#2a2a2a !important;color:#f9a8d4 !important;border-radius:3px;}
 /* Nodata placeholder */
 .nodata{color:var(--c-text-secondary);}
 
+
+
+/* ═══════════════════════════════════════════════════
+   NEXORA LIGHT THEME OVERRIDES
+   Injected block — do not edit :root above, only override here
+   ═══════════════════════════════════════════════════ */
+
+[data-theme="light"] {
+  /* Brand tokens — keep purple/cyan/green, update neutrals */
+  --nx-bg: #F8F9FC;
+  --nx-surface: #FFFFFF;
+  --nx-surface2: #F1F5F9;
+  --nx-border: rgba(99,102,241,0.18);
+  --nx-border-subtle: rgba(0,0,0,0.06);
+  --nx-text: #0F172A;
+  --nx-text-muted: #475569;
+  --nx-text-dim: #64748B;
+  --nx-glow-purple: none;
+  --nx-glow-cyan: none;
+  --nx-glow-green: none;
+  --nx-glass: rgba(255,255,255,0.85);
+  --nx-glass-border: rgba(99,102,241,0.12);
+
+  /* Semantic tokens */
+  --mg: #7C3AED;
+  --berry: #A855F7;
+  --blk: #0F172A;
+  --wht: #F8F9FC;
+  --gr: #64748B;
+  --grl: #E2E8F0;
+  --grll: #F8F9FC;
+
+  --c-bg-page: #F8F9FC;
+  --c-bg-card: #FFFFFF;
+  --c-bg-section: #FFFFFF;
+  --c-bg-subtle: #F1F5F9;
+  --c-text-primary: #0F172A;
+  --c-text-secondary: #475569;
+  --c-text-tertiary: #64748B;
+  --c-border-card: #E2E8F0;
+  --c-border-subtle: #F1F5F9;
+  --c-code-bg: #F1F5F9;
+  --c-code-text: #7C3AED;
+  --c-insight-bg: #EEF2FF;
+  --c-regime-bg: #EFF6FF;
+  --c-regime-text: #2563EB;
+  --c-regime-b: #3B82F6;
+  --c-vol-bg: #FFFFFF;
+  --c-cmp-before-bg: #F8F9FC;
+  --c-cmp-after-bg: #EEF2FF;
+  --c-cmp-after-border: #C7D2FE;
+  --c-verdict-worse-bg: #FEE2E2;
+  --c-verdict-better-bg: #DCFCE7;
+  --c-verdict-better-text: #166534;
+  --c-verdict-flat-bg: #F5F5F5;
+  --c-filter-strip-bg: #FFFFFF;
+  --c-drawer-bg: #F8F9FC;
+  --c-af-neutral-bg: #F1F5F9;
+  --c-af-neutral-text: #0F172A;
+  --c-fp-bg: #F1F5F9;
+  --c-fp-text: #0F172A;
+  --c-inc-modal-bg: #F8F9FC;
+  --c-inc-table-hover: #F8F9FC;
+  --c-inc-mini-bg: #FFFFFF;
+  --c-inc-chart-bg: #FFFFFF;
+  --c-tbl-hover: #F8F9FC;
+  --c-arow-bg: #FFFFFF;
+  --c-footer-bg: #FFFFFF;
+  --c-footer-text: #94A3B8;
+}
+
+/* ── Page & Body ── */
+[data-theme="light"] body {
+  background: #F8F9FC;
+  color: #0F172A;
+}
+
+/* ── Header ── */
+[data-theme="light"] .hdr {
+  background: rgba(255,255,255,0.97) !important;
+  border-bottom: 1px solid #E2E8F0 !important;
+  box-shadow: 0 1px 0 rgba(99,102,241,0.08), 0 2px 8px rgba(0,0,0,0.06) !important;
+  backdrop-filter: none !important;
+}
+[data-theme="light"] .hdr-title { color: #0F172A !important; }
+[data-theme="light"] .hdr-sub { color: #475569 !important; }
+[data-theme="light"] .hdr-logo-wrap svg text[fill="#F9FAFB"] { fill: #0F172A !important; }
+[data-theme="light"] .live-badge { background: #6366F1; color: #fff; }
+[data-theme="light"] .reload-btn {
+  background: #F1F5F9 !important;
+  color: #475569 !important;
+  border-color: #E2E8F0 !important;
+}
+[data-theme="light"] .reload-btn:hover {
+  background: #E2E8F0 !important;
+  color: #0F172A !important;
+}
+[data-theme="light"] #incBtn {
+  border-color: #7C3AED !important;
+  color: #7C3AED !important;
+  background: #F5F3FF !important;
+}
+
+/* ── Filter strip & drawer ── */
+[data-theme="light"] .active-filter {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid #E2E8F0 !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
+}
+[data-theme="light"] .af-label,
+[data-theme="light"] .af-clear,
+[data-theme="light"] .af-runcount { color: #64748B !important; }
+[data-theme="light"] .af-chip {
+  background: #6366F1 !important;
+  color: #fff !important;
+}
+[data-theme="light"] .filter-drawer {
+  background: #F8F9FC !important;
+  border-bottom: 1px solid #E2E8F0 !important;
+  backdrop-filter: none !important;
+}
+[data-theme="light"] .fp {
+  background: #F1F5F9 !important;
+  color: #475569 !important;
+  border-color: #E2E8F0 !important;
+}
+[data-theme="light"] .fp.on,
+[data-theme="light"] .fp:hover {
+  background: #6366F1 !important;
+  color: #fff !important;
+  border-color: #6366F1 !important;
+}
+[data-theme="light"] .fb-label { color: #64748B !important; }
+[data-theme="light"] .nx-sel-dropdown {
+  background: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+}
+[data-theme="light"] .nx-sel-opt { color: #0F172A !important; }
+[data-theme="light"] .nx-sel-opt:hover,
+[data-theme="light"] .nx-sel-opt.on {
+  background: #EEF2FF !important;
+  color: #4F46E5 !important;
+}
+
+/* ── Executive Summary card ── stays dark per spec ── */
+[data-theme="light"] .exec {
+  background: linear-gradient(135deg, #1E1B4B 0%, #2D2A7A 100%) !important;
+  border: 1px solid rgba(99,102,241,0.3) !important;
+  box-shadow: 0 4px 24px rgba(99,102,241,0.15) !important;
+}
+[data-theme="light"] .exec-headline { color: #F9FAFB !important; }
+[data-theme="light"] .exec-period { color: #A5B4FC !important; }
+[data-theme="light"] .exec-body { color: #C7D2FE !important; }
+[data-theme="light"] .exec-body b { color: #FFFFFF !important; }
+[data-theme="light"] .exec-kicker { color: #A5B4FC !important; }
+[data-theme="light"] .exec-badge {
+  background: rgba(239,68,68,0.85) !important;
+  color: #fff !important;
+}
+[data-theme="light"] .exec-hl { color: #F9FAFB !important; }
+
+/* ── Volume Indicator ── */
+[data-theme="light"] .vol-indicator {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  border-left: 3px solid #7C3AED !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important;
+}
+[data-theme="light"] .vol-icon { background: linear-gradient(135deg,#7C3AED,#06B6D4) !important; }
+[data-theme="light"] .vol-body { color: #0F172A !important; }
+[data-theme="light"] .vol-body b { color: #0F172A !important; }
+[data-theme="light"] .vol-meta { color: #475569 !important; }
+[data-theme="light"] .vol-est { color: #0F172A !important; }
+[data-theme="light"] .vol-title { color: #7C3AED !important; }
+
+/* ── KPI tiles — navy gradient matching Executive Summary, white text ── */
+html[data-theme="light"] .kcard {
+  background: linear-gradient(135deg,#1E1B4B,#2D2A7A) !important;
+  border: 1px solid rgba(99,102,241,0.2) !important;
+  box-shadow: 0 2px 8px rgba(30,27,75,0.15) !important;
+  --nx-text: #FFFFFF;
+  --c-text-primary: #FFFFFF;
+  --mg: #C4B5FD;
+}
+html[data-theme="light"] .kcard.sla {
+  border-bottom: 3px solid #7C3AED !important;
+}
+html[data-theme="light"] .kcard.sla.ok  { border-bottom-color: #16a34a !important; }
+html[data-theme="light"] .kcard.sla.warn { border-bottom-color: #d97706 !important; }
+html[data-theme="light"] .kcard.sla.red  { border-bottom-color: #b91c1c !important; }
+html[data-theme="light"] .kcard .kv { color: #FFFFFF !important; }
+html[data-theme="light"] .kcard .kl { color: rgba(255,255,255,0.70) !important; }
+html[data-theme="light"] .kcard .ks { color: rgba(255,255,255,0.60) !important; }
+html[data-theme="light"] .kcard .ks .up { color: #6EE7B7 !important; }
+html[data-theme="light"] .kcard .ks .dn { color: #FCA5A5 !important; }
+html[data-theme="light"] .kcard .mg-txt { color: #C4B5FD !important; }
+html[data-theme="light"] .kalert { color: #FCA5A5 !important; }
+[data-theme="light"] .kalert {
+  background: rgba(239,68,68,0.25) !important;
+  color: #FCA5A5 !important;
+  border-color: rgba(239,68,68,0.4) !important;
+}
+
+/* ── Chart cards (white bg) ── */
+[data-theme="light"] .card {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important;
+}
+[data-theme="light"] .card-title { color: #0F172A !important; }
+[data-theme="light"] .card-sub { color: #64748B !important; }
+
+/* ── Section titles ── */
+[data-theme="light"] .sec-title { color: #94A3B8 !important; }
+[data-theme="light"] .sec-line { background: #E2E8F0 !important; }
+
+/* ── Legend ── */
+[data-theme="light"] .leg .li,
+[data-theme="light"] .li { color: #475569 !important; }
+
+/* ── Insight boxes ── */
+[data-theme="light"] .insight {
+  background: #EEF2FF !important;
+  border-left-color: #6366F1 !important;
+  color: #4338CA !important;
+}
+[data-theme="light"] .insight b { color: #4338CA !important; }
+
+/* ── Tables ── */
+[data-theme="light"] .tbl th {
+  color: #475569 !important;
+  border-bottom-color: #E2E8F0 !important;
+  background: #F8F9FC !important;
+}
+[data-theme="light"] .tbl td {
+  color: #0F172A !important;
+  border-bottom-color: #F1F5F9 !important;
+}
+[data-theme="light"] .tbl tr:hover td { background: #F8F9FC !important; }
+
+/* ── Pills ── */
+[data-theme="light"] .pill-mg { background: #F5F3FF !important; color: #7C3AED !important; }
+[data-theme="light"] .pill-ok { background: #F0FDF4 !important; color: #16A34A !important; }
+[data-theme="light"] .pill-warn { background: #FFFBEB !important; color: #D97706 !important; }
+[data-theme="light"] .pill-crit { background: #FEF2F2 !important; color: #DC2626 !important; }
+
+/* ── Anomaly rows ── */
+[data-theme="light"] .arow { background: #FFFFFF !important; color: #0F172A !important; }
+[data-theme="light"] .arow.sev-p1 { background: #FEF2F2 !important; border-left-color: #EF4444 !important; }
+[data-theme="light"] .arow.sev-spike,
+[data-theme="light"] .arow.sev-drop { background: #FFFBEB !important; border-left-color: #D97706 !important; }
+[data-theme="light"] .adesc { color: #475569 !important; }
+[data-theme="light"] .adate { color: #0F172A !important; }
+[data-theme="light"] .amore { border-top-color: #E2E8F0 !important; }
+
+/* ── Comparison cards ── */
+[data-theme="light"] .cmp-before { background: #F8F9FC !important; }
+[data-theme="light"] .cmp-after {
+  background: #EEF2FF !important;
+  border-color: #C7D2FE !important;
+}
+[data-theme="light"] .cmp-label { color: #475569 !important; }
+
+/* ── Regime / run class badge ── */
+[data-theme="light"] .regime-badge {
+  background: #EFF6FF !important;
+  color: #2563EB !important;
+  border-color: #BFDBFE !important;
+}
+
+/* ── Incident modal ── */
+[data-theme="light"] .inc-modal {
+  background: #F8F9FC !important;
+  border-color: #E2E8F0 !important;
+}
+[data-theme="light"] .inc-modal-hdr { color: #0F172A !important; border-bottom-color: #E2E8F0 !important; }
+[data-theme="light"] .inc-chart-card { background: #FFFFFF !important; border-color: #E2E8F0 !important; }
+[data-theme="light"] .inc-stat { background: #FFFFFF !important; border-color: #E2E8F0 !important; }
+[data-theme="light"] .inc-stat-label { color: #475569 !important; }
+[data-theme="light"] .inc-stat-val { color: #0F172A !important; }
+[data-theme="light"] .inc-table th { color: #475569 !important; border-color: #E2E8F0 !important; }
+[data-theme="light"] .inc-table td { color: #0F172A !important; border-color: #F1F5F9 !important; }
+[data-theme="light"] .inc-table tr:hover td { background: #F8F9FC !important; }
+[data-theme="light"] .rinc-date { color: #0F172A !important; }
+[data-theme="light"] .rinc-rca { color: #475569 !important; }
+[data-theme="light"] .inc-mini { background: #FFFFFF !important; border-color: #E2E8F0 !important; }
+[data-theme="light"] .inc-mini-lbl { color: #475569 !important; }
+[data-theme="light"] .inc-mini-val { color: #0F172A !important; }
+
+/* ── Code / inline code ── */
+[data-theme="light"] code {
+  background: #F1F5F9 !important;
+  color: #7C3AED !important;
+}
+
+/* ── Footer ── */
+[data-theme="light"] footer {
+  background: #FFFFFF !important;
+  border-top: 1px solid #E2E8F0 !important;
+  color: #94A3B8 !important;
+}
+
+/* ── Nodata ── */
+[data-theme="light"] .nodata { color: #94A3B8 !important; }
+
+/* ── Migration card overrides ── */
+[data-theme="light"] .mig-card {
+  background: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+}
+
+/* ── Bar chart bars keep brand color ── */
+[data-theme="light"] .bar-i { background: #7C3AED !important; }
+
+/* ── Toggle button itself ── */
+.theme-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(124,58,237,0.35);
+  background: rgba(124,58,237,0.12);
+  color: #C4B5FD;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.theme-toggle-btn:hover {
+  background: rgba(124,58,237,0.22);
+  border-color: rgba(124,58,237,0.55);
+  color: #DDD6FE;
+}
+[data-theme="light"] .theme-toggle-btn {
+  background: #F1F5F9 !important;
+  border-color: #E2E8F0 !important;
+  color: #475569 !important;
+}
+[data-theme="light"] .theme-toggle-btn:hover {
+  background: #E2E8F0 !important;
+  color: #0F172A !important;
+}
+
+
 </style>
 </head>
 <body>
@@ -997,6 +1343,7 @@ code{background:#2a2a2a !important;color:#f9a8d4 !important;border-radius:3px;}
     <button class="reload-btn" id="incBtn" onclick="showIncidents(activeFilter)" style="border-color:#7C3AED;color:#7C3AED;">&#9888; Incidents</button>
     <button class="reload-btn" id="shareBtn" onclick="shareCurrentView()" title="Copy a link that opens this dashboard to the current filter state">&#128279; Share view</button>
     <button class="reload-btn" onclick="location.reload()">↩ Reload</button>
+    <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle light / dark mode">☾ Dark</button>
     <span class="live-badge">LIVE</span>
   </div>
 </div>
@@ -1826,7 +2173,7 @@ function renderVolumeIndicator(filtered){
       </div>
     </div>
     <div style="text-align:right;padding-right:8px;">
-      <div style="font-size:22px;font-weight:800;color:#F9FAFB">${fmtM(estRuntime)}</div>
+      <div style="font-size:22px;font-weight:800;color:${document.documentElement.getAttribute('data-theme')==='light'?'#0F172A':'#F9FAFB'}">${fmtM(estRuntime)}</div>
       <div style="font-size:10px;color:#94A3B8;margin-top:2px;">est. runtime</div>
       <div style="font-size:10px;color:${riskColor};font-weight:700;margin-top:4px;">${adjSlaPct}% breach risk</div>
     </div>
@@ -2277,6 +2624,7 @@ function renderStack(mData, rData){
 
 // ── DONUT ──
 function renderDonut(mData){
+  const _legColor = document.documentElement.getAttribute('data-theme') === 'light' ? '#374151' : '#CBD5E1';
   dc('donut');
   if(!mData.length) return;
   const own=Math.round(avg(mData.map(m=>m.ord_val)));
@@ -2307,7 +2655,7 @@ function renderDonut(mData){
         legend:{
           display:true,
           position:'right',
-          labels:{font:{size:11},color:'#CBD5E1',boxWidth:12,boxHeight:12,padding:8,usePointStyle:true,pointStyle:'rect'}
+          labels:{font:{size:11},color:_legColor,boxWidth:12,boxHeight:12,padding:8,usePointStyle:true,pointStyle:'rect'}
         },
         tooltip:{
           enabled:true,
@@ -2729,6 +3077,7 @@ function renderFeed(fData){
 
 // ── FEED DONUT ──
 function renderFeedDonut(fData){
+  const _legColor = document.documentElement.getAttribute('data-theme') === 'light' ? '#374151' : '#CBD5E1';
   dc('feedDonut');
   if(!fData.length) return;
   const feat=Math.round(avg(fData.map(r=>r.feat)));
@@ -2741,7 +3090,7 @@ function renderFeedDonut(fData){
     data:{labels:['Payments','Inventory','Orders'],
       datasets:[{data:[feat,sub,iot],backgroundColor:[MG,BERRY,GR],borderColor:'#fff',borderWidth:3,hoverOffset:4}]},
     options:{responsive:true,maintainAspectRatio:false,cutout:'65%',
-      plugins:{legend:{display:true,position:'right',labels:{font:{size:11},color:'#CBD5E1',boxWidth:12,padding:8}},
+      plugins:{legend:{display:true,position:'right',labels:{font:{size:11},color:_legColor,boxWidth:12,padding:8}},
         tooltip:{callbacks:{label:v=>`${v.label}: ${(v.raw/1e3).toFixed(0)}K avg (${Math.round(v.raw/tot*100)}%)`}}}}
   });
 }
@@ -3107,6 +3456,7 @@ function renderIncidentSummary(){
   ).join('');
 }
 function renderIncidentCharts(){
+  const _legColor = document.documentElement.getAttribute('data-theme') === 'light' ? '#374151' : '#CBD5E1';
   // Category donut
   const cats=['Infrastructure','Data Quality','Database','Other','Deployment','Environment'];
   const catColors=['#7C3AED','#7C3AED','#0891B2','#6A6A6A','#D97706','#16A34A'];
@@ -3118,7 +3468,7 @@ function renderIncidentCharts(){
     window._incCatChart=new Chart(cc,{type:'doughnut',
       data:{labels:cats,datasets:[{data:catCounts,backgroundColor:catColors,borderWidth:0}]},
       options:{responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{position:'right',labels:{color:'#888',font:{size:9},boxWidth:10}}}}
+        plugins:{legend:{position:'right',labels:{color:_legColor,font:{size:12},boxWidth:12,padding:10}}}}
     });
   }
   // Top processes bar
@@ -3250,6 +3600,52 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('dashboard').style.display='block';
   loadNexoraData();
 });
+
+
+/* ── Nexora Theme Toggle ── */
+function getDonutLegendColor() {
+  return document.documentElement.getAttribute('data-theme') === 'light' ? '#374151' : '#CBD5E1';
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const btn = document.getElementById('themeToggleBtn');
+  if (html.getAttribute('data-theme') === 'light') {
+    html.setAttribute('data-theme', 'dark');
+    if (btn) btn.innerHTML = '☀ Light';
+    localStorage.setItem('nx-theme', 'dark');
+  } else {
+    html.setAttribute('data-theme', 'light');
+    if (btn) btn.innerHTML = '☾ Dark';
+    localStorage.setItem('nx-theme', 'light');
+  }
+  // Re-apply donut legend color live
+  if (typeof charts !== 'undefined' && charts['donut']) {
+    charts['donut'].options.plugins.legend.labels.color = getDonutLegendColor();
+    charts['donut'].update();
+  }
+  if (typeof charts !== 'undefined' && charts['feedDonut']) {
+    charts['feedDonut'].options.plugins.legend.labels.color = getDonutLegendColor();
+    charts['feedDonut'].update();
+  }
+  if (window._incCatChart) {
+    window._incCatChart.destroy();
+    window._incCatChart = null;
+    if (typeof renderIncidentCharts === 'function') renderIncidentCharts();
+  }
+}
+
+/* Restore saved preference on load */
+(function() {
+  const saved = localStorage.getItem('nx-theme');
+  if (saved) {
+    document.documentElement.setAttribute('data-theme', saved);
+    const btn = document.getElementById('themeToggleBtn');
+    if (btn) btn.innerHTML = saved === 'light' ? '☾ Dark' : '☀ Light';
+  }
+})();
+
+
 </script>
 
 <!-- ══════════ INCIDENT PANEL ══════════ -->
